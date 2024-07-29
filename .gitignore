@@ -1,0 +1,13 @@
+# Don't send auto-created logs
+cacao-engine.log
+.ninja_log
+
+# Don't send VS Code files
+.vscode
+
+# Don't send Wrap-downloaded things
+subprojects/*
+!subprojects/*.wrap
+
+# Don't send Python crap from utility scripts
+scripts/__pycache__
