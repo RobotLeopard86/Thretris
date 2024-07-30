@@ -1,0 +1,7 @@
+vertex: assets/shaders/block.vs.spv
+fragment: assets/shaders/block.ps.spv
+spec:
+  - name: tex
+    sizex: 1
+    sizey: 1
+    type: texture

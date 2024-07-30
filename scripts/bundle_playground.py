@@ -26,8 +26,10 @@ shutil.copy2(buildroot / 'subprojects' / 'cacaoengine' / 'cacao' / ('cacaoengine
 shutil.copytree(thretris / 'assets', bundleroot / 'assets')
 shutil.copy2(thretris / 'launchconfig.cacao.yml', bundleroot)
 shutil.copy2(buildroot / ('launch' + so_suffix), bundleroot)
+
+shaderroot = (bundleroot / 'assets' / 'shaders')
 for file in (buildroot / ('launch' + so_suffix + '.p')).rglob('*.spv'):
-	shutil.copy2(file, bundleroot / 'assets' / 'shaders')
+	shutil.copy2(file, shaderroot)
 
 def get_engine_path():
 	return (bundleroot / ('cacaoengine' + exe_suffix))
