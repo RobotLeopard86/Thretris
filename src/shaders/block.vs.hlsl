@@ -1,10 +1,11 @@
 #pragma pack_matrix(row_major)
 
-cbuffer cacao : register(b0) {
+cbuffer cacao_globals : register(b0) {
   float4x4 projection;
   float4x4 view;
-  float4x4 transform;
 };
+
+cbuffer cacao_locals : register(b1) { float4x4 transform; };
 
 struct VSInput {
   [[vk::location(0)]] float3 Position : POSITION0;

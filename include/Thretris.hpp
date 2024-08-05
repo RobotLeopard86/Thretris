@@ -11,11 +11,15 @@ class Thretris {
 	void OnStartup();
 	void OnShutdown();
 
+	void DoStart();
+
   private:
 	static Thretris* instance;
 	static bool instanceExists;
 
 	AssetHandle<Font> font;
+
+	std::shared_ptr<Entity> menuMgr;
 
 	std::shared_ptr<Screen> mainMenu;
 	std::shared_ptr<Screen> gameUI;
