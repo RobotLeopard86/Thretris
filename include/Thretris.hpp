@@ -4,6 +4,8 @@
 
 using namespace Cacao;
 
+#define vec3D(T) std::vector<std::vector<std::vector<T>>>
+
 class Thretris {
   public:
 	static Thretris* GetInstance();
@@ -12,6 +14,8 @@ class Thretris {
 	void OnShutdown();
 
 	void DoStart();
+
+	void UpdateInfoText(glm::vec3 p, glm::vec3 r);
 
   private:
 	static Thretris* instance;
@@ -27,6 +31,8 @@ class Thretris {
 	AssetHandle<Texture2D> mainMenuBG_Tex;
 	std::shared_ptr<Image> mainMenuBG;
 	std::shared_ptr<Text> startText;
+
+	std::shared_ptr<Text> camInf;
 
 	AssetHandle<Texture2D> red;
 	AssetHandle<Texture2D> orange;
@@ -51,7 +57,7 @@ class Thretris {
 
 	AssetHandle<Skybox> spaghetti;
 
-	std::vector<std::shared_ptr<Entity>> blks;
+	vec3D(std::shared_ptr<Entity>) blks;
 	std::shared_ptr<Entity> camMgrEnt;
 	xg::Guid cmGUID;
 };

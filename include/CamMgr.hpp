@@ -69,6 +69,8 @@ class CamMgr final : public Cacao::Script {
 
 		cam->SetRotation(currentRot);
 		cam->SetPosition(currentPos);
+
+		Thretris::GetInstance()->UpdateInfoText(currentPos, currentRot);
 	}
 
   private:

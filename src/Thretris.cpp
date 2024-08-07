@@ -25,9 +25,27 @@ void Thretris::DoStart() {
 		Logging::ClientLog("Let's go!");
 
 		gameUI = std::make_shared<Screen>();
+		camInf = std::make_shared<Text>();
+		camInf->SetAnchor(AnchorPoint::TopLeft);
+		camInf->SetSize({0.4f, 0.05f});
+		camInf->SetText("P X/Y/Z R X/Y/Z");
+		camInf->SetAlignment(TextAlign::Left);
+		camInf->SetColor({255.0f, 255.0f, 255.0f});
+		camInf->SetOffsetFromAnchor({0.0f, 0.01f});
+		camInf->SetFont(font);
+		camInf->SetDepth(0);
+		camInf->SetActive(true);
+		gameUI->AddElement(camInf);
+
 		WorldManager::GetInstance()->SetActiveWorld("Game");
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 	});
+}
+
+void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r) {
+	std::stringstream txt;
+	txt << "P " << p.x << "/" << p.y << "/" << p.z << " R " << r.x << "/" << r.y << "/" << r.z;
+	camInf->SetText(txt.str());
 }
 
 void Thretris::OnStartup() {
@@ -114,12 +132,15 @@ void Thretris::OnStartup() {
 	std::random_device dev;
 	std::mt19937 rng(dev());
 	std::uniform_int_distribution<std::mt19937::result_type> dist(0, 8);
+	blks.resize(10);
 	for(int x = 0; x < 10; x++) {
+		blks[x].resize(10);
 		for(int z = 0; z < 10; z++) {
+			blks[x][z].resize(20);
 			for(int y = 0; y < 20; y++) {
 				std::shared_ptr<Entity> blk = std::make_shared<Entity>(std::to_string(blkc));
-				blk->GetLocalTransform().SetPosition({float(x), float(y - 10), -float(z + 4)});
-				blk->GetLocalTransform().SetScale({1.0f, 1.0f, 1.0f});
+				blk->GetLocalTransform().SetPosition(glm::vec3 {float(x + 5), float(y - 10), -float(z - 4)});
+				blk->GetLocalTransform().SetScale(glm::vec3(0.5f));
 				blk->SetActive(true);
 				blk->IsActive();
 				std::shared_ptr<MeshComponent> mc = blk->GetComponent<MeshComponent>(blk->MountComponent<MeshComponent>());
@@ -157,7 +178,7 @@ void Thretris::OnStartup() {
 				blk->SetParent(world.rootEntity);
 
 				blkc++;
-				blks.push_back(blk);
+				blks[x][z][y] = blk;
 			}
 		}
 	}
