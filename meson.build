@@ -17,6 +17,7 @@ pshaders = spv_gen.process([
 launch = shared_module('launch', name_prefix: '', dependencies: cacao_dep, include_directories: 'include', sources: [
 	'src/ThretrisMain.cpp',
 	'src/Thretris.cpp',
+	'src/Thretromino.cpp',
 	vshaders,
 	pshaders
 ], build_by_default: true)

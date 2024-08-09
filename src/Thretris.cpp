@@ -4,7 +4,8 @@
 #include <cstddef>
 
 #include "CamMgr.hpp"
-#include "RandomScripts.hpp"
+#include "RandomStuff.hpp"
+#include "Thretromino.hpp"
 
 Thretris* Thretris::instance = nullptr;
 bool Thretris::instanceExists = false;
@@ -98,7 +99,7 @@ void Thretris::OnStartup() {
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/blocks/purple.png"));
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/blocks/pink.png"));
 
-	block = AssetManager::GetInstance()->LoadMesh("assets/blocks/block.obj:Block").get();
+	pub.block = AssetManager::GetInstance()->LoadMesh("assets/blocks/block.obj:Block").get();
 	blockShd = AssetManager::GetInstance()->LoadShader("assets/shaders/block.shaderdef.yml").get();
 
 	red = texLoadOp[0].get();
@@ -111,15 +112,15 @@ void Thretris::OnStartup() {
 	purple = texLoadOp[7].get();
 	pink = texLoadOp[8].get();
 
-	redM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(red)}}});
-	orangeM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(orange)}}});
-	goldM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(gold)}}});
-	greenM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(green)}}});
-	cyanM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(cyan)}}});
-	lblueM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(lblue)}}});
-	dblueM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(dblue)}}});
-	purpleM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(purple)}}});
-	pinkM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(pink)}}});
+	pub.redM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(red)}}});
+	pub.orangeM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(orange)}}});
+	pub.goldM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(gold)}}});
+	pub.greenM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(green)}}});
+	pub.cyanM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(cyan)}}});
+	pub.lblueM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(lblue)}}});
+	pub.dblueM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(dblue)}}});
+	pub.purpleM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(purple)}}});
+	pub.pinkM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(pink)}}});
 
 	spaghetti = AssetManager::GetInstance()->LoadSkybox("assets/game.cubedef.yml").get();
 
@@ -132,11 +133,8 @@ void Thretris::OnStartup() {
 	std::random_device dev;
 	std::mt19937 rng(dev());
 	std::uniform_int_distribution<std::mt19937::result_type> dist(0, 8);
-	blks.resize(10);
 	for(int x = 0; x < 10; x++) {
-		blks[x].resize(10);
 		for(int z = 0; z < 10; z++) {
-			blks[x][z].resize(20);
 			for(int y = 0; y < 20; y++) {
 				std::shared_ptr<Entity> blk = std::make_shared<Entity>(std::to_string(blkc));
 				blk->GetLocalTransform().SetPosition(glm::vec3 {float(x + 5), float(y - 10), -float(z - 4)});
@@ -144,34 +142,34 @@ void Thretris::OnStartup() {
 				blk->SetActive(true);
 				blk->IsActive();
 				std::shared_ptr<MeshComponent> mc = blk->GetComponent<MeshComponent>(blk->MountComponent<MeshComponent>());
-				mc->mesh = block;
+				mc->mesh = pub.block;
 				switch(dist(rng)) {
 					case 0:
-						mc->mat = redM;
+						mc->mat = pub.redM;
 						break;
 					case 1:
-						mc->mat = orangeM;
+						mc->mat = pub.orangeM;
 						break;
 					case 2:
-						mc->mat = goldM;
+						mc->mat = pub.goldM;
 						break;
 					case 3:
-						mc->mat = greenM;
+						mc->mat = pub.greenM;
 						break;
 					case 4:
-						mc->mat = cyanM;
+						mc->mat = pub.cyanM;
 						break;
 					case 5:
-						mc->mat = lblueM;
+						mc->mat = pub.lblueM;
 						break;
 					case 6:
-						mc->mat = dblueM;
+						mc->mat = pub.dblueM;
 						break;
 					case 7:
-						mc->mat = purpleM;
+						mc->mat = pub.purpleM;
 						break;
 					case 8:
-						mc->mat = pinkM;
+						mc->mat = pub.pinkM;
 						break;
 				}
 				mc->SetActive(true);
@@ -182,6 +180,8 @@ void Thretris::OnStartup() {
 			}
 		}
 	}
+
+	thretromino = SpawnThretromino(ThretrominoType::T);
 
 	camMgrEnt = std::make_shared<Entity>("Cam Manager");
 	cmGUID = camMgrEnt->MountComponent<CamMgr>();

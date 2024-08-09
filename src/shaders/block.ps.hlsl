@@ -12,7 +12,7 @@ struct PSOutput {
 
 PSOutput main(PSInput input) {
   PSOutput output = (PSOutput)0;
-  float2 tc = input.TexCoords / 2;
+  float2 tc = (input.TexCoords / 2) - 0.5;
   output.Color = tex.Sample(texSampler, tc);
   return output;
 }
