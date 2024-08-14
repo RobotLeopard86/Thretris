@@ -13,6 +13,12 @@ struct Thretromino {
 	glm::vec3 center;
 	std::vector<glm::i8vec3> shape;
 	void UpdateInWorld();
+	void Freeze();
+	~Thretromino();
+	bool frozen;
+
+	Thretromino()
+	  : frozen(false) {}
 };
 
 enum class ThretrominoType {

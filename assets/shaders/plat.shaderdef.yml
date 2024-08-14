@@ -1,0 +1,7 @@
+vertex: assets/shaders/plat.vs.spv
+fragment: assets/shaders/plat.ps.spv
+spec:
+  - name: tex
+    sizex: 1
+    sizey: 1
+    type: texture

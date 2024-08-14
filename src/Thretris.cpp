@@ -6,6 +6,7 @@
 #include "CamMgr.hpp"
 #include "RandomStuff.hpp"
 #include "Thretromino.hpp"
+#include "GameMgr.hpp"
 
 Thretris* Thretris::instance = nullptr;
 bool Thretris::instanceExists = false;
@@ -98,6 +99,7 @@ void Thretris::OnStartup() {
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/blocks/darkblue.png"));
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/blocks/purple.png"));
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/blocks/pink.png"));
+	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/plat.png"));
 
 	pub.block = AssetManager::GetInstance()->LoadMesh("assets/blocks/block.obj:Block").get();
 	blockShd = AssetManager::GetInstance()->LoadShader("assets/shaders/block.shaderdef.yml").get();
@@ -111,6 +113,7 @@ void Thretris::OnStartup() {
 	dblue = texLoadOp[6].get();
 	purple = texLoadOp[7].get();
 	pink = texLoadOp[8].get();
+	platTex = texLoadOp[9].get();
 
 	pub.redM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(red)}}});
 	pub.orangeM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(orange)}}});
@@ -124,6 +127,10 @@ void Thretris::OnStartup() {
 
 	spaghetti = AssetManager::GetInstance()->LoadSkybox("assets/game.cubedef.yml").get();
 
+	platMsh = AssetManager::GetInstance()->LoadMesh("assets/platform.obj:Platform").get();
+	platShd = AssetManager::GetInstance()->LoadShader("assets/shaders/plat.shaderdef.yml").get();
+	platMat = std::make_shared<Material>(Material {.shader = platShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(platTex)}}});
+
 	Logging::ClientLog("Generating world...");
 
 	World& world = WorldManager::GetInstance()->GetWorld("Game");
@@ -135,12 +142,12 @@ void Thretris::OnStartup() {
 	std::uniform_int_distribution<std::mt19937::result_type> dist(0, 8);
 	for(int x = 0; x < 10; x++) {
 		for(int z = 0; z < 10; z++) {
-			for(int y = 0; y < 20; y++) {
+			for(int y = 0; y < 4; y++) {
+				if(y == 3 && (x > 6 && z > 6)) continue;
 				std::shared_ptr<Entity> blk = std::make_shared<Entity>(std::to_string(blkc));
 				blk->GetLocalTransform().SetPosition(glm::vec3 {float(x + 5), float(y - 10), -float(z - 4)});
 				blk->GetLocalTransform().SetScale(glm::vec3(0.5f));
 				blk->SetActive(true);
-				blk->IsActive();
 				std::shared_ptr<MeshComponent> mc = blk->GetComponent<MeshComponent>(blk->MountComponent<MeshComponent>());
 				mc->mesh = pub.block;
 				switch(dist(rng)) {
@@ -181,14 +188,24 @@ void Thretris::OnStartup() {
 		}
 	}
 
-	thretromino = SpawnThretromino(ThretrominoType::T);
-
-	camMgrEnt = std::make_shared<Entity>("Cam Manager");
-	cmGUID = camMgrEnt->MountComponent<CamMgr>();
+	camMgrEnt = std::make_shared<Entity>("Thetris Manager");
 	camMgrEnt->SetParent(world.rootEntity);
 	camMgrEnt->SetActive(true);
-	camMgrEnt->GetComponent<CamMgr>(cmGUID)->SetActive(true);
+	camMgrEnt->GetComponent<CamMgr>(camMgrEnt->MountComponent<CamMgr>())->SetActive(true);
+	camMgrEnt->GetComponent<GameMgr>(camMgrEnt->MountComponent<GameMgr>())->SetActive(true);
 	camMgrEnt->GetComponent<ExitHandler>(camMgrEnt->MountComponent<ExitHandler>())->SetActive(true);
+
+	platformEnt = std::make_shared<Entity>("Floor Platform");
+	platformEnt->SetActive(true);
+	platformEnt->GetLocalTransform().SetPosition({9.5625f, -11, -0.5f});
+	platformEnt->GetLocalTransform().SetScale({0.5f, 1, 0.5f});
+	std::shared_ptr<MeshComponent> pmc = platformEnt->GetComponent<MeshComponent>(platformEnt->MountComponent<MeshComponent>());
+	pmc->mat = platMat;
+	pmc->mesh = platMsh;
+	pmc->SetActive(true);
+	platformEnt->SetParent(world.rootEntity);
+
+	world.cam->SetPosition({-15, 0, 0});
 
 	Logging::ClientLog("Thretris is started.");
 }

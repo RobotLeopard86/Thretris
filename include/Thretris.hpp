@@ -30,9 +30,8 @@ class Thretris {
 
 	void UpdateInfoText(glm::vec3 p, glm::vec3 r);
 
-	void FreezeBlock(glm::u8vec3 pos, std::shared_ptr<Entity> blk);
-
 	PublicAssets pub;
+	std::array<std::array<std::array<std::shared_ptr<Entity>, 20>, 10>, 10> blks;
 
   private:
 	static Thretris* instance;
@@ -64,9 +63,11 @@ class Thretris {
 
 	AssetHandle<Skybox> spaghetti;
 
-	std::array<std::array<std::array<std::shared_ptr<Entity>, 20>, 10>, 10> blks;
 	std::shared_ptr<Entity> camMgrEnt;
-	xg::Guid cmGUID;
 
-	std::shared_ptr<Thretromino> thretromino;
+	std::shared_ptr<Entity> platformEnt;
+	AssetHandle<Shader> platShd;
+	AssetHandle<Texture2D> platTex;
+	AssetHandle<Mesh> platMsh;
+	std::shared_ptr<Material> platMat;
 };

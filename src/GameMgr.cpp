@@ -1,0 +1,143 @@
+#include "GameMgr.hpp"
+
+#include "Thretris.hpp"
+
+void GameMgr::OnTick(double timestep) {
+	decltype(Thretris::GetInstance()->blks) blks = Thretris::GetInstance()->blks;
+	switch(state) {
+		case State::Spawn: {
+			if(steady_clock::now() - dropFinished < prespawnTime) break;
+			auto rng = std::mt19937(std::random_device()());
+			activeThretro = SpawnThretromino((ThretrominoType)std::uniform_int_distribution<int>(0, 8)(rng));
+			activeThretro->center = {4, 19, 5};
+			activeThretro->UpdateInWorld();
+			state = State::UsrIn;
+			break;
+		}
+		case State::UsrIn: {
+			msa.tgt = activeThretro->center;
+			msa.tgt.y = ceil(msa.tgt.y) - 1;
+			if(msa.tgt.y < 0) goto freeze;
+
+			glm::vec3 noMovementTgt = msa.tgt;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_UP)) msa.tgt.x++;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_DOWN)) msa.tgt.x--;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_LEFT)) msa.tgt.z--;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_RIGHT)) msa.tgt.z++;
+
+			msa.tgt.x = round(std::clamp(msa.tgt.x, 0.0f, 9.0f));
+			msa.tgt.z = round(std::clamp(msa.tgt.z, 0.0f, 9.0f));
+			msa.tgt.y = ceil(std::clamp(msa.tgt.y, 0.0f, 19.0f));
+
+			bool moveIsValid = true;
+			for(glm::i8vec3 member : activeThretro->shape) {
+				glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + msa.tgt;
+				if(p.x < 0 || p.x > 9 || p.z < 0 || p.z > 9 || p.y < 0 || p.y > 19) {
+					moveIsValid = false;
+					break;
+				} else if(blks[p.x][9 - p.z][p.y]) {
+					moveIsValid = false;
+					break;
+				}
+			}
+
+			if(!moveIsValid) {
+				if(msa.tgt == noMovementTgt) goto freeze;
+				std::vector<glm::vec3> possibleTgts;
+				glm::vec3 oldTgt = msa.tgt;
+				possibleTgts.push_back(noMovementTgt);
+				if(msa.tgt.x != noMovementTgt.x) possibleTgts.emplace_back(noMovementTgt.x, msa.tgt.y, msa.tgt.z);
+				if(msa.tgt.z != noMovementTgt.z) possibleTgts.emplace_back(msa.tgt.z, msa.tgt.y, noMovementTgt.z);
+				for(auto tgt : possibleTgts) {
+					tgt.x = round(std::clamp(tgt.x, 0.0f, 9.0f));
+					tgt.z = round(std::clamp(tgt.z, 0.0f, 9.0f));
+					tgt.y = ceil(std::clamp(tgt.y, 0.0f, 19.0f));
+					bool ok = true;
+					for(glm::i8vec3 member : activeThretro->shape) {
+						glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + tgt;
+						if(p.x < 0 || p.x > 9 || p.z < 0 || p.z > 9 || p.y < 0 || p.y > 19) {
+							ok = false;
+							break;
+						} else if(blks[p.x][9 - p.z][p.y]) {
+							ok = false;
+							break;
+						}
+					}
+					if(!ok) continue;
+					msa.tgt = tgt;
+					break;
+				}
+				if(msa.tgt == oldTgt) goto freeze;
+			}
+
+			msa.tgt.x = round(std::clamp(msa.tgt.x, 0.0f, 9.0f));
+			msa.tgt.z = round(std::clamp(msa.tgt.z, 0.0f, 9.0f));
+			msa.tgt.y = ceil(std::clamp(msa.tgt.y, 0.0f, 19.0f));
+
+			if(msa.tgt.x != activeThretro->center.x || msa.tgt.z != activeThretro->center.z) {
+				activeThretro->center = {msa.tgt.x, activeThretro->center.y, msa.tgt.z};
+				activeThretro->UpdateInWorld();
+			}
+
+			msa.original = activeThretro->center;
+			msa.dir = msa.tgt - msa.original;
+			msa.curDist = 0.0f;
+			msa.totDist = glm::length(msa.dir);
+			state = State::Move;
+			break;
+		}
+		case State::Move: {
+			msa.curDist += (float(timestep)) * 3;
+			activeThretro->center = (msa.curDist >= msa.totDist ? msa.tgt : msa.original + (msa.dir * (msa.curDist / msa.totDist)));
+			activeThretro->UpdateInWorld();
+			if(activeThretro->center == msa.tgt) {
+				state = State::CheckClear;
+				break;
+			}
+		}
+		case State::CheckClear: {
+			for(uint8_t y = 0; y < 20; y++) {
+				bool skip = false;
+				for(auto x : blks) {
+					for(auto z : x) {
+						if(!z[y]) {
+							skip = true;
+							break;
+						}
+					}
+					if(skip) break;
+				}
+				if(skip) continue;
+
+				for(auto x : blks) {
+					for(auto z : x) {
+						z[y]->SetParent(z[y]);
+					}
+				}
+				for(uint8_t yAbv = y + 1; yAbv < 20; yAbv++) {
+					for(uint8_t x = 0; x < 10; x++) {
+						for(uint8_t z = 0; z < 10; z++) {
+							blks[x][z][yAbv - 1] = blks[x][z][yAbv];
+							if(blks[x][z][yAbv - 1]) {
+								glm::vec3 p = blks[x][z][yAbv - 1]->GetLocalTransform().GetPosition();
+								p.y -= 1;
+								blks[x][z][yAbv - 1]->GetLocalTransform().SetPosition(p);
+								if(yAbv == 19) blks[x][z][yAbv] = std::shared_ptr<Entity>();
+							}
+						}
+					}
+				}
+				Thretris::GetInstance()->blks = blks;
+			}
+			state = State::UsrIn;
+			break;
+		}
+	}
+	return;
+
+freeze:
+	activeThretro->Freeze();
+	dropFinished = steady_clock::now();
+	state = State::Spawn;
+	return;
+}
