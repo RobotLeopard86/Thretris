@@ -11,7 +11,8 @@ struct Thretromino {
 	std::map<std::shared_ptr<Entity>, std::shared_ptr<MeshComponent>> blocks;
 	BlkMatOpt color;
 	glm::vec3 center;
-	std::vector<glm::i8vec3> shape;
+	std::vector<std::vector<glm::i8vec3>> shapes;
+	int idx;
 	void UpdateInWorld();
 	void Freeze();
 	~Thretromino();
@@ -30,7 +31,7 @@ enum class ThretrominoType {
 	T,
 	Table,
 	C,
-	I
+	Bit
 };
 
 std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp);

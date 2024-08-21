@@ -25,12 +25,32 @@ void GameMgr::OnTick(double timestep) {
 			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_LEFT)) msa.tgt.z--;
 			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_RIGHT)) msa.tgt.z++;
 
+			uint8_t iShift = 0;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_X)) iShift--;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_C)) iShift++;
+			int newIdx = activeThretro->idx + iShift;
+			if(newIdx >= activeThretro->shapes.size()) newIdx = 0;
+			if(newIdx < 0) newIdx = activeThretro->shapes.size() - 1;
+
+			bool rotateIsValid = true;
+			for(glm::i8vec3 member : activeThretro->shapes[newIdx]) {
+				glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + msa.tgt;
+				if(p.x < 0 || p.x > 9 || p.z < 0 || p.z > 9 || p.y < 0 || p.y > 19) {
+					rotateIsValid = false;
+					break;
+				} else if(blks[p.x][9 - p.z][p.y]) {
+					rotateIsValid = false;
+					break;
+				}
+			}
+			if(rotateIsValid) activeThretro->idx = newIdx;
+
 			msa.tgt.x = round(std::clamp(msa.tgt.x, 0.0f, 9.0f));
 			msa.tgt.z = round(std::clamp(msa.tgt.z, 0.0f, 9.0f));
 			msa.tgt.y = ceil(std::clamp(msa.tgt.y, 0.0f, 19.0f));
 
 			bool moveIsValid = true;
-			for(glm::i8vec3 member : activeThretro->shape) {
+			for(glm::i8vec3 member : activeThretro->shapes[activeThretro->idx]) {
 				glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + msa.tgt;
 				if(p.x < 0 || p.x > 9 || p.z < 0 || p.z > 9 || p.y < 0 || p.y > 19) {
 					moveIsValid = false;
@@ -53,7 +73,7 @@ void GameMgr::OnTick(double timestep) {
 					tgt.z = round(std::clamp(tgt.z, 0.0f, 9.0f));
 					tgt.y = ceil(std::clamp(tgt.y, 0.0f, 19.0f));
 					bool ok = true;
-					for(glm::i8vec3 member : activeThretro->shape) {
+					for(glm::i8vec3 member : activeThretro->shapes[activeThretro->idx]) {
 						glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + tgt;
 						if(p.x < 0 || p.x > 9 || p.z < 0 || p.z > 9 || p.y < 0 || p.y > 19) {
 							ok = false;
