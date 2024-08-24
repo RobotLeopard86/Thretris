@@ -116,39 +116,69 @@ void GameMgr::OnTick(double timestep) {
 			}
 		}
 		case State::CheckClear: {
+			std::vector<glm::u8vec3> cleared;
 			for(uint8_t y = 0; y < 20; y++) {
-				bool skip = false;
-				for(auto x : blks) {
-					for(auto z : x) {
-						if(!z[y]) {
-							skip = true;
+				std::vector<uint8_t> rowsToClear;
+				std::vector<uint8_t> columnsToClear;
+				for(uint8_t x = 0; x < 10; x++) {
+					bool exitLp = false;
+					for(uint8_t z = 0; z < 10; z++) {
+						if(!blks[x][z][y]) {
+							exitLp = true;
 							break;
 						}
 					}
-					if(skip) break;
+					if(exitLp) continue;
+					rowsToClear.emplace_back(x);
 				}
-				if(skip) continue;
+				for(uint8_t z = 0; z < 10; z++) {
+					bool exitLp = false;
+					for(uint8_t x = 0; x < 10; x++) {
+						if(!blks[x][z][y]) {
+							exitLp = true;
+							break;
+						}
+					}
+					if(exitLp) continue;
+					columnsToClear.emplace_back(z);
+				}
 
-				for(auto x : blks) {
-					for(auto z : x) {
-						z[y]->SetParent(z[y]);
+				for(uint8_t r : rowsToClear) {
+					for(uint8_t i = 0; i < 10; i++) {
+						blks[r][i][y]->SetParent(blks[r][i][y]);
+						blks[r][i][y] = std::shared_ptr<Entity>();
+						cleared.emplace_back(r, i, y);
 					}
 				}
-				for(uint8_t yAbv = y + 1; yAbv < 20; yAbv++) {
-					for(uint8_t x = 0; x < 10; x++) {
-						for(uint8_t z = 0; z < 10; z++) {
-							blks[x][z][yAbv - 1] = blks[x][z][yAbv];
-							if(blks[x][z][yAbv - 1]) {
-								glm::vec3 p = blks[x][z][yAbv - 1]->GetLocalTransform().GetPosition();
-								p.y -= 1;
-								blks[x][z][yAbv - 1]->GetLocalTransform().SetPosition(p);
-								if(yAbv == 19) blks[x][z][yAbv] = std::shared_ptr<Entity>();
-							}
+				for(uint8_t c : columnsToClear) {
+					for(uint8_t i = 0; i < 10; i++) {
+						if(!blks[i][c][y]) continue;
+						blks[i][c][y]->SetParent(blks[i][c][y]);
+						cleared.emplace_back(i, c, y);
+					}
+				}
+			}
+			for(uint8_t x = 0; x < 10; x++) {
+				for(uint8_t z = 0; z < 10; z++) {
+					std::vector<uint8_t> clearedInStack;
+					for(auto c : cleared) {
+						if(c.x == x && c.y == z) clearedInStack.emplace_back(c.z);
+					}
+					std::sort(clearedInStack.begin(), clearedInStack.end(), std::greater<uint8_t>());
+					for(uint8_t clearPoint : clearedInStack) {
+						for(uint8_t y = clearPoint; y <= 18; y++) {
+							if(!blks[x][z][y + 1]) continue;
+							glm::vec3 p = blks[x][z][y + 1]->GetLocalTransform().GetPosition();
+							p.y -= 1;
+							blks[x][z][y + 1]->GetLocalTransform().SetPosition(p);
+							blks[x][z][y].swap(blks[x][z][y]);
 						}
 					}
 				}
-				Thretris::GetInstance()->blks = blks;
 			}
+
+			Thretris::GetInstance()->blks = blks;
+
 			state = State::UsrIn;
 			break;
 		}

@@ -136,58 +136,6 @@ void Thretris::OnStartup() {
 	World& world = WorldManager::GetInstance()->GetWorld("Game");
 	world.skybox = spaghetti;
 
-	int blkc = 1;
-	std::random_device dev;
-	std::mt19937 rng(dev());
-	std::uniform_int_distribution<std::mt19937::result_type> dist(0, 8);
-	for(int x = 0; x < 10; x++) {
-		for(int z = 0; z < 10; z++) {
-			for(int y = 0; y < 4; y++) {
-				if(y == 3 && (x > 6 && z > 6)) continue;
-				std::shared_ptr<Entity> blk = std::make_shared<Entity>(std::to_string(blkc));
-				blk->GetLocalTransform().SetPosition(glm::vec3 {float(x + 5), float(y - 10), -float(z - 4)});
-				blk->GetLocalTransform().SetScale(glm::vec3(0.5f));
-				blk->SetActive(true);
-				std::shared_ptr<MeshComponent> mc = blk->GetComponent<MeshComponent>(blk->MountComponent<MeshComponent>());
-				mc->mesh = pub.block;
-				switch(dist(rng)) {
-					case 0:
-						mc->mat = pub.redM;
-						break;
-					case 1:
-						mc->mat = pub.orangeM;
-						break;
-					case 2:
-						mc->mat = pub.goldM;
-						break;
-					case 3:
-						mc->mat = pub.greenM;
-						break;
-					case 4:
-						mc->mat = pub.cyanM;
-						break;
-					case 5:
-						mc->mat = pub.lblueM;
-						break;
-					case 6:
-						mc->mat = pub.dblueM;
-						break;
-					case 7:
-						mc->mat = pub.purpleM;
-						break;
-					case 8:
-						mc->mat = pub.pinkM;
-						break;
-				}
-				mc->SetActive(true);
-				blk->SetParent(world.rootEntity);
-
-				blkc++;
-				blks[x][z][y] = blk;
-			}
-		}
-	}
-
 	camMgrEnt = std::make_shared<Entity>("Thetris Manager");
 	camMgrEnt->SetParent(world.rootEntity);
 	camMgrEnt->SetActive(true);
