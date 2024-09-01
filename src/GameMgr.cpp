@@ -2,6 +2,21 @@
 
 #include "Thretris.hpp"
 
+#define QUICKDROP_MULTIPLIER 12
+#define BASE_LEVELADVANCE 10
+
+bool IsMoveValid(std::shared_ptr<Thretromino> thr, glm::vec3 tgt, decltype(Thretris::GetInstance()->blks)& blks) {
+	for(glm::i8vec3 member : thr->shapes[thr->idx]) {
+		glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + tgt;
+		if(p.x < 0 || p.x > 9 || p.z < 0 || p.z > 9 || p.y < 0 || p.y > 19) {
+			return false;
+		} else if(blks[p.x][9 - p.z][p.y]) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void GameMgr::OnTick(double timestep) {
 	decltype(Thretris::GetInstance()->blks) blks = Thretris::GetInstance()->blks;
 	switch(state) {
@@ -12,12 +27,39 @@ void GameMgr::OnTick(double timestep) {
 			activeThretro->center = {4, 19, 5};
 			activeThretro->UpdateInWorld();
 			state = State::UsrIn;
+			numSpawns++;
+
+			if(numSpawns >= ceil(BASE_LEVELADVANCE * (1.0f + ((Thretris::GetInstance()->GetLvl() - 1) / 10)))) Thretris::GetInstance()->SetLvl(Thretris::GetInstance()->GetLvl() + 1);
+
 			break;
 		}
 		case State::UsrIn: {
+			if(activeThretro->quickDropped) {
+				state = State::Move;
+				goto mv;
+			}
+
 			msa.tgt = activeThretro->center;
 			msa.tgt.y = ceil(msa.tgt.y) - 1;
 			if(msa.tgt.y < 0) goto freeze;
+
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_H)) {
+				activeThretro->quickDropped = true;
+				glm::vec3 lowestTarget = activeThretro->center;
+				while(lowestTarget.y > 0 && IsMoveValid(activeThretro, lowestTarget, blks)) {
+					lowestTarget.y -= 1;
+				}
+				msa.original = activeThretro->center;
+				msa.tgt = lowestTarget;
+				msa.tgt.x = round(std::clamp(msa.tgt.x, 0.0f, 9.0f));
+				msa.tgt.z = round(std::clamp(msa.tgt.z, 0.0f, 9.0f));
+				msa.tgt.y = ceil(std::clamp(msa.tgt.y, 0.0f, 19.0f));
+				msa.dir = msa.tgt - msa.original;
+				msa.curDist = 0.0f;
+				msa.totDist = glm::length(msa.dir);
+				state = State::Move;
+				goto mv;
+			}
 
 			glm::vec3 noMovementTgt = msa.tgt;
 			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_UP)) msa.tgt.x++;
@@ -49,19 +91,7 @@ void GameMgr::OnTick(double timestep) {
 			msa.tgt.z = round(std::clamp(msa.tgt.z, 0.0f, 9.0f));
 			msa.tgt.y = ceil(std::clamp(msa.tgt.y, 0.0f, 19.0f));
 
-			bool moveIsValid = true;
-			for(glm::i8vec3 member : activeThretro->shapes[activeThretro->idx]) {
-				glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + msa.tgt;
-				if(p.x < 0 || p.x > 9 || p.z < 0 || p.z > 9 || p.y < 0 || p.y > 19) {
-					moveIsValid = false;
-					break;
-				} else if(blks[p.x][9 - p.z][p.y]) {
-					moveIsValid = false;
-					break;
-				}
-			}
-
-			if(!moveIsValid) {
+			if(!IsMoveValid(activeThretro, msa.tgt, blks)) {
 				if(msa.tgt == noMovementTgt) goto freeze;
 				std::vector<glm::vec3> possibleTgts;
 				glm::vec3 oldTgt = msa.tgt;
@@ -72,18 +102,7 @@ void GameMgr::OnTick(double timestep) {
 					tgt.x = round(std::clamp(tgt.x, 0.0f, 9.0f));
 					tgt.z = round(std::clamp(tgt.z, 0.0f, 9.0f));
 					tgt.y = ceil(std::clamp(tgt.y, 0.0f, 19.0f));
-					bool ok = true;
-					for(glm::i8vec3 member : activeThretro->shapes[activeThretro->idx]) {
-						glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + tgt;
-						if(p.x < 0 || p.x > 9 || p.z < 0 || p.z > 9 || p.y < 0 || p.y > 19) {
-							ok = false;
-							break;
-						} else if(blks[p.x][9 - p.z][p.y]) {
-							ok = false;
-							break;
-						}
-					}
-					if(!ok) continue;
+					if(!IsMoveValid(activeThretro, tgt, blks)) continue;
 					msa.tgt = tgt;
 					break;
 				}
@@ -107,10 +126,12 @@ void GameMgr::OnTick(double timestep) {
 			break;
 		}
 		case State::Move: {
-			msa.curDist += (float(timestep)) * 3;
+		mv:
+			msa.curDist += (float(timestep)) * (activeThretro->quickDropped ? QUICKDROP_MULTIPLIER : 1 + Thretris::GetInstance()->GetLvl());
 			activeThretro->center = (msa.curDist >= msa.totDist ? msa.tgt : msa.original + (msa.dir * (msa.curDist / msa.totDist)));
 			activeThretro->UpdateInWorld();
 			if(activeThretro->center == msa.tgt) {
+				if(activeThretro->quickDropped) goto freeze;
 				state = State::CheckClear;
 				break;
 			}
@@ -144,16 +165,23 @@ void GameMgr::OnTick(double timestep) {
 				}
 
 				for(uint8_t r : rowsToClear) {
+					Thretris::GetInstance()->IncrementScore();
 					for(uint8_t i = 0; i < 10; i++) {
 						blks[r][i][y]->SetParent(blks[r][i][y]);
 						blks[r][i][y] = std::shared_ptr<Entity>();
 						cleared.emplace_back(r, i, y);
 					}
 				}
+
 				for(uint8_t c : columnsToClear) {
+					Thretris::GetInstance()->IncrementScore();
+					std::stringstream bruh;
+					Logging::ClientLog(bruh.str());
 					for(uint8_t i = 0; i < 10; i++) {
 						if(!blks[i][c][y]) continue;
+						Logging::ClientLog(bruh.str());
 						blks[i][c][y]->SetParent(blks[i][c][y]);
+						blks[i][c][y] = std::shared_ptr<Entity>();
 						cleared.emplace_back(i, c, y);
 					}
 				}
@@ -171,7 +199,7 @@ void GameMgr::OnTick(double timestep) {
 							glm::vec3 p = blks[x][z][y + 1]->GetLocalTransform().GetPosition();
 							p.y -= 1;
 							blks[x][z][y + 1]->GetLocalTransform().SetPosition(p);
-							blks[x][z][y].swap(blks[x][z][y]);
+							blks[x][z][y].swap(blks[x][z][y + 1]);
 						}
 					}
 				}

@@ -13,7 +13,7 @@ bool Thretris::instanceExists = false;
 
 Thretris* Thretris::GetInstance() {
 	//Do we have an instance yet?
-	if(!instanceExists || instance == NULL) {
+	if(!instanceExists || instance == nullptr) {
 		//Create instance
 		instance = new Thretris();
 		instanceExists = true;
@@ -38,10 +38,45 @@ void Thretris::DoStart() {
 		camInf->SetDepth(0);
 		camInf->SetActive(true);
 		gameUI->AddElement(camInf);
+		scoreTxt = std::make_shared<Text>();
+		scoreTxt->SetAnchor(AnchorPoint::TopRight);
+		scoreTxt->SetSize({0.2f, 0.05f});
+		scoreTxt->SetText("Score: 0");
+		scoreTxt->SetAlignment(TextAlign::Right);
+		scoreTxt->SetColor({255.0f, 255.0f, 255.0f});
+		scoreTxt->SetOffsetFromAnchor({0.0f, 0.01f});
+		scoreTxt->SetFont(font);
+		scoreTxt->SetDepth(0);
+		scoreTxt->SetActive(true);
+		gameUI->AddElement(scoreTxt);
+		levelTxt = std::make_shared<Text>();
+		levelTxt->SetAnchor(AnchorPoint::TopRight);
+		levelTxt->SetSize({0.2f, 0.05f});
+		levelTxt->SetText("Level 1");
+		levelTxt->SetAlignment(TextAlign::Right);
+		levelTxt->SetColor({255.0f, 255.0f, 255.0f});
+		levelTxt->SetOffsetFromAnchor({0.0f, 0.075f});
+		levelTxt->SetFont(font);
+		levelTxt->SetDepth(0);
+		levelTxt->SetActive(true);
+		gameUI->AddElement(levelTxt);
 
 		WorldManager::GetInstance()->SetActiveWorld("Game");
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 	});
+}
+
+void Thretris::IncrementScore() {
+	score++;
+	std::stringstream textStr;
+	textStr << "Score: " << score;
+	scoreTxt->SetText(textStr.str());
+}
+
+void Thretris::SetLvl(int lvl) {
+	std::stringstream textStr;
+	textStr << "Level " << lvl;
+	levelTxt->SetText(textStr.str());
 }
 
 void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r) {
@@ -135,6 +170,9 @@ void Thretris::OnStartup() {
 
 	World& world = WorldManager::GetInstance()->GetWorld("Game");
 	world.skybox = spaghetti;
+
+	score = 0;
+	level = 1;
 
 	camMgrEnt = std::make_shared<Entity>("Thetris Manager");
 	camMgrEnt->SetParent(world.rootEntity);

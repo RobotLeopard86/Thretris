@@ -27,12 +27,14 @@ class GameMgr final : public Script {
 	void OnActivate() override {
 		dropFinished = steady_clock::now() - prespawnTime;
 		state = State::Spawn;
+		numSpawns = 0;
 	}
 	void OnTick(double) override;
 
   private:
 	std::shared_ptr<Thretromino> activeThretro;
 	steady_clock::time_point dropFinished;
+	int numSpawns;
 	State state;
 	MoveStateArgs msa;
 };

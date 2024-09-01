@@ -29,6 +29,11 @@ class Thretris {
 	void DoStart();
 
 	void UpdateInfoText(glm::vec3 p, glm::vec3 r);
+	void IncrementScore();
+	void SetLvl(int lvl);
+	int GetLvl() {
+		return level;
+	}
 
 	PublicAssets pub;
 	std::array<std::array<std::array<std::shared_ptr<Entity>, 20>, 10>, 10> blks;
@@ -49,6 +54,11 @@ class Thretris {
 	std::shared_ptr<Text> startText;
 
 	std::shared_ptr<Text> camInf;
+
+	std::shared_ptr<Text> scoreTxt;
+	int score;
+	std::shared_ptr<Text> levelTxt;
+	int level;
 
 	AssetHandle<Texture2D> red;
 	AssetHandle<Texture2D> orange;

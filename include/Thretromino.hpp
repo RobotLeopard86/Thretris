@@ -17,9 +17,10 @@ struct Thretromino {
 	void Freeze();
 	~Thretromino();
 	bool frozen;
+	bool quickDropped;
 
 	Thretromino()
-	  : frozen(false) {}
+	  : frozen(false), quickDropped(false) {}
 };
 
 enum class ThretrominoType {
