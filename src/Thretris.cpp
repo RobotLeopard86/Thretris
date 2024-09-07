@@ -67,7 +67,7 @@ void Thretris::DoStart() {
 }
 
 void Thretris::IncrementScore() {
-	score++;
+	score += floor(pow(1.5, double(level) / 4));
 	std::stringstream textStr;
 	textStr << "Score: " << score;
 	scoreTxt->SetText(textStr.str());
@@ -77,6 +77,7 @@ void Thretris::SetLvl(int lvl) {
 	std::stringstream textStr;
 	textStr << "Level " << lvl;
 	levelTxt->SetText(textStr.str());
+	level = lvl;
 }
 
 void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r) {
@@ -87,6 +88,7 @@ void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r) {
 
 void Thretris::OnStartup() {
 	std::future<AssetHandle<Texture2D>> menuBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/menubg.png");
+	std::future<AssetHandle<Texture2D>> lgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/logo.png");
 	std::future<AssetHandle<Font>> fontFut = AssetManager::GetInstance()->LoadFont("assets/PixelifySans.ttf");
 
 	WorldManager::GetInstance()->CreateWorld<PerspectiveCamera>("MainMenu");
@@ -102,6 +104,15 @@ void Thretris::OnStartup() {
 	mainMenuBG->SetActive(true);
 	mainMenuBG->SetDepth(1);
 	mainMenu->AddElement(mainMenuBG);
+	logoTex = lgFut.get();
+	logo = std::make_shared<Image>();
+	logo->SetAnchor(AnchorPoint::Center);
+	logo->SetSize({0.75f, 0.15f});
+	logo->SetOffsetFromAnchor({0.0f, -0.2f});
+	logo->SetImage(logoTex);
+	logo->SetActive(true);
+	logo->SetDepth(0);
+	mainMenu->AddElement(logo);
 	startText = std::make_shared<Text>();
 	startText->SetAnchor(AnchorPoint::BottomCenter);
 	startText->SetSize({0.1f, 0.1f});

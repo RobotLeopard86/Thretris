@@ -7,7 +7,7 @@ cacao-engine.log
 
 # Don't send Wrap-downloaded things
 subprojects/*
-!subprojects/*.wrap
+!subprojects/cacaoengine.wrap
 
 # Don't send Python crap from utility scripts
 scripts/__pycache__

@@ -54,6 +54,9 @@ void GameMgr::OnTick(double timestep) {
 				msa.tgt.x = round(std::clamp(msa.tgt.x, 0.0f, 9.0f));
 				msa.tgt.z = round(std::clamp(msa.tgt.z, 0.0f, 9.0f));
 				msa.tgt.y = ceil(std::clamp(msa.tgt.y, 0.0f, 19.0f));
+
+				if(!IsMoveValid(activeThretro, msa.tgt, blks)) msa.tgt.y++;
+
 				msa.dir = msa.tgt - msa.original;
 				msa.curDist = 0.0f;
 				msa.totDist = glm::length(msa.dir);
@@ -62,10 +65,39 @@ void GameMgr::OnTick(double timestep) {
 			}
 
 			glm::vec3 noMovementTgt = msa.tgt;
-			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_UP)) msa.tgt.x++;
-			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_DOWN)) msa.tgt.x--;
-			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_LEFT)) msa.tgt.z--;
-			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_RIGHT)) msa.tgt.z++;
+
+			glm::vec3 mvBuf {0};
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_UP)) mvBuf.x++;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_DOWN)) mvBuf.x--;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_LEFT)) mvBuf.z--;
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_RIGHT)) mvBuf.z++;
+
+			float crot = WorldManager::GetInstance()->GetActiveWorld().cam->GetRotation().y;
+			int rotZone = (static_cast<int>((crot + 45) / 90) % 4);
+			switch(rotZone) {
+				case 0: break;
+				case 1: {
+					float swap = -mvBuf.z;
+					mvBuf.z = mvBuf.x;
+					mvBuf.x = swap;
+					break;
+				}
+				case 2:
+					mvBuf.x = -mvBuf.x;
+					mvBuf.z = -mvBuf.z;
+					break;
+				case 3:
+					mvBuf.x = -mvBuf.x;
+					{
+						float swap = mvBuf.z;
+						mvBuf.z = mvBuf.x;
+						mvBuf.x = swap;
+					}
+					break;
+				default: break;
+			}
+
+			msa.tgt += mvBuf;
 
 			uint8_t iShift = 0;
 			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_X)) iShift--;
@@ -127,7 +159,7 @@ void GameMgr::OnTick(double timestep) {
 		}
 		case State::Move: {
 		mv:
-			msa.curDist += (float(timestep)) * (activeThretro->quickDropped ? QUICKDROP_MULTIPLIER : 1 + Thretris::GetInstance()->GetLvl());
+			msa.curDist += (float(timestep)) * (activeThretro->quickDropped ? QUICKDROP_MULTIPLIER : std::min(log(1 + Thretris::GetInstance()->GetLvl()) / log(1.75), 6.0));
 			activeThretro->center = (msa.curDist >= msa.totDist ? msa.tgt : msa.original + (msa.dir * (msa.curDist / msa.totDist)));
 			activeThretro->UpdateInWorld();
 			if(activeThretro->center == msa.tgt) {
@@ -175,11 +207,8 @@ void GameMgr::OnTick(double timestep) {
 
 				for(uint8_t c : columnsToClear) {
 					Thretris::GetInstance()->IncrementScore();
-					std::stringstream bruh;
-					Logging::ClientLog(bruh.str());
 					for(uint8_t i = 0; i < 10; i++) {
 						if(!blks[i][c][y]) continue;
-						Logging::ClientLog(bruh.str());
 						blks[i][c][y]->SetParent(blks[i][c][y]);
 						blks[i][c][y] = std::shared_ptr<Entity>();
 						cleared.emplace_back(i, c, y);

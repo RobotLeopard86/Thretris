@@ -52,6 +52,8 @@ class Thretris {
 	AssetHandle<Texture2D> mainMenuBG_Tex;
 	std::shared_ptr<Image> mainMenuBG;
 	std::shared_ptr<Text> startText;
+	AssetHandle<Texture2D> logoTex;
+	std::shared_ptr<Image> logo;
 
 	std::shared_ptr<Text> camInf;
 

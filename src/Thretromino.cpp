@@ -179,7 +179,7 @@ std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 		}
 		case ThretrominoType::H: {
 			ret->color = BlkMatOpt::Pnk;
-			ret->shapes.resize(3);
+			ret->shapes.resize(4);
 			ret->shapes[0].emplace_back(-1, 1, 0);
 			ret->shapes[0].emplace_back(-1, 0, 0);
 			ret->shapes[0].emplace_back(-1, -1, 0);
@@ -201,6 +201,13 @@ std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 			ret->shapes[2].emplace_back(0, 0, -1);
 			ret->shapes[2].emplace_back(1, 0, -1);
 			ret->shapes[2].emplace_back(0, 0, 0);
+			ret->shapes[3].emplace_back(1, 0, -1);
+			ret->shapes[3].emplace_back(1, 0, 0);
+			ret->shapes[3].emplace_back(1, 0, 1);
+			ret->shapes[3].emplace_back(-1, 0, -1);
+			ret->shapes[3].emplace_back(-1, 0, 0);
+			ret->shapes[3].emplace_back(-1, 0, 1);
+			ret->shapes[3].emplace_back(0, 0, 0);
 			break;
 		}
 		case ThretrominoType::Bit: {
