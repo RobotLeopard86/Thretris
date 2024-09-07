@@ -14,7 +14,8 @@ enum class State {
 	Move,
 	Spawn,
 	UsrIn,
-	CheckClear
+	CheckClear,
+	GameOver
 };
 
 struct MoveStateArgs {

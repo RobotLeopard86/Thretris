@@ -30,9 +30,17 @@ class Thretris {
 
 	void UpdateInfoText(glm::vec3 p, glm::vec3 r);
 	void IncrementScore();
+	void ResetScore();
 	void SetLvl(int lvl);
 	int GetLvl() {
 		return level;
+	}
+
+	void GameOver() {
+		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameOver);
+	}
+	void ShowGameUI() {
+		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 	}
 
 	PublicAssets pub;
@@ -48,12 +56,18 @@ class Thretris {
 
 	std::shared_ptr<Screen> mainMenu;
 	std::shared_ptr<Screen> gameUI;
+	std::shared_ptr<Screen> gameOver;
 
 	AssetHandle<Texture2D> mainMenuBG_Tex;
 	std::shared_ptr<Image> mainMenuBG;
 	std::shared_ptr<Text> startText;
 	AssetHandle<Texture2D> logoTex;
 	std::shared_ptr<Image> logo;
+
+	AssetHandle<Texture2D> gameOverBG_Tex;
+	std::shared_ptr<Image> gameOverBG;
+	std::shared_ptr<Text> gameOverText;
+	std::shared_ptr<Text> resetText;
 
 	std::shared_ptr<Text> camInf;
 

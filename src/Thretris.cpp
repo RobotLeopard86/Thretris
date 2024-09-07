@@ -61,6 +61,37 @@ void Thretris::DoStart() {
 		levelTxt->SetActive(true);
 		gameUI->AddElement(levelTxt);
 
+		gameOver = std::make_shared<Screen>();
+		gameOverBG = std::make_shared<Image>();
+		gameOverBG->SetAnchor(AnchorPoint::Center);
+		gameOverBG->SetSize({1.0f, 1.0f});
+		gameOverBG->SetImage(gameOverBG_Tex);
+		gameOverBG->SetActive(true);
+		gameOverBG->SetDepth(1);
+		gameOver->AddElement(gameOverBG);
+		resetText = std::make_shared<Text>();
+		resetText->SetAnchor(AnchorPoint::BottomCenter);
+		resetText->SetSize({0.175f, 0.2f});
+		resetText->SetText("Press Start To\nPlay Again");
+		resetText->SetAlignment(TextAlign::Center);
+		resetText->SetColor({255.0f, 255.0f, 255.0f});
+		resetText->SetOffsetFromAnchor({-0.05f, -0.1f});
+		resetText->SetFont(font);
+		resetText->SetDepth(0);
+		resetText->SetActive(true);
+		gameOver->AddElement(resetText);
+		gameOverText = std::make_shared<Text>();
+		gameOverText->SetAnchor(AnchorPoint::Center);
+		gameOverText->SetSize({0.04f, 0.15f});
+		gameOverText->SetOffsetFromAnchor({0.0f, -0.2f});
+		gameOverText->SetColor({255.0f, 0.0f, 0.0f});
+		gameOverText->SetAlignment(TextAlign::Center);
+		gameOverText->SetText("GAME OVER");
+		gameOverText->SetActive(true);
+		gameOverText->SetFont(font);
+		gameOverText->SetDepth(0);
+		gameOver->AddElement(gameOverText);
+
 		WorldManager::GetInstance()->SetActiveWorld("Game");
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 	});
@@ -71,6 +102,11 @@ void Thretris::IncrementScore() {
 	std::stringstream textStr;
 	textStr << "Score: " << score;
 	scoreTxt->SetText(textStr.str());
+}
+
+void Thretris::ResetScore() {
+	score = 0;
+	scoreTxt->SetText("Score: 0");
 }
 
 void Thretris::SetLvl(int lvl) {
@@ -88,6 +124,7 @@ void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r) {
 
 void Thretris::OnStartup() {
 	std::future<AssetHandle<Texture2D>> menuBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/menubg.png");
+	std::future<AssetHandle<Texture2D>> overBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/gameoverbg.png");
 	std::future<AssetHandle<Texture2D>> lgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/logo.png");
 	std::future<AssetHandle<Font>> fontFut = AssetManager::GetInstance()->LoadFont("assets/PixelifySans.ttf");
 
@@ -146,6 +183,8 @@ void Thretris::OnStartup() {
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/blocks/purple.png"));
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/blocks/pink.png"));
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/plat.png"));
+
+	gameOverBG_Tex = overBgFut.get();
 
 	pub.block = AssetManager::GetInstance()->LoadMesh("assets/blocks/block.obj:Block").get();
 	blockShd = AssetManager::GetInstance()->LoadShader("assets/shaders/block.shaderdef.yml").get();

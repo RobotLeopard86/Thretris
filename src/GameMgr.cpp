@@ -34,6 +34,19 @@ void GameMgr::OnTick(double timestep) {
 			break;
 		}
 		case State::UsrIn: {
+			for(int x = 0; x < 10; x++) {
+				for(int z = 0; z < 10; z++) {
+					if(blks[x][z][19]) {
+						state = State::GameOver;
+						for(auto blk : activeThretro->blocks) {
+							blk.first->SetParent(blk.first);
+						}
+						Thretris::GetInstance()->GameOver();
+						return;
+					}
+				}
+			}
+
 			if(activeThretro->quickDropped) {
 				state = State::Move;
 				goto mv;
@@ -56,6 +69,11 @@ void GameMgr::OnTick(double timestep) {
 				msa.tgt.y = ceil(std::clamp(msa.tgt.y, 0.0f, 19.0f));
 
 				if(!IsMoveValid(activeThretro, msa.tgt, blks)) msa.tgt.y++;
+				msa.tgt.y = ceil(std::clamp(msa.tgt.y, 0.0f, 19.0f));
+
+				if(msa.tgt.y > activeThretro->center.y) {
+					Logging::ClientLog("what", LogLevel::Warn);
+				}
 
 				msa.dir = msa.tgt - msa.original;
 				msa.curDist = 0.0f;
@@ -238,6 +256,28 @@ void GameMgr::OnTick(double timestep) {
 
 			state = State::UsrIn;
 			break;
+		}
+		case State::GameOver: {
+			Engine::GetInstance()->GetGlobalUIView()->GetScreen()->ForceDirty();
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_ENTER)) {
+				for(int x = 0; x < 10; x++) {
+					for(int z = 0; z < 10; z++) {
+						for(int y = 0; y < 20; y++) {
+							if(!blks[x][z][y]) continue;
+							blks[x][z][y]->SetParent(blks[x][z][y]);
+							blks[x][z][y] = std::shared_ptr<Entity>();
+						}
+					}
+				}
+				Thretris::GetInstance()->blks = blks;
+				Thretris::GetInstance()->SetLvl(1);
+				Thretris::GetInstance()->ResetScore();
+				dropFinished = steady_clock::now();
+				state = State::Spawn;
+				numSpawns = 0;
+				Thretris::GetInstance()->ShowGameUI();
+				break;
+			}
 		}
 	}
 	return;
