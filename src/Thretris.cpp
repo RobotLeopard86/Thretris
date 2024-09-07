@@ -1,6 +1,7 @@
 #include "Thretris.hpp"
 
 #include <cstdlib>
+#include <fstream>
 #include <cstddef>
 
 #include "CamMgr.hpp"
@@ -49,13 +50,24 @@ void Thretris::DoStart() {
 		scoreTxt->SetDepth(0);
 		scoreTxt->SetActive(true);
 		gameUI->AddElement(scoreTxt);
+		hscoreTxt = std::make_shared<Text>();
+		hscoreTxt->SetAnchor(AnchorPoint::TopRight);
+		hscoreTxt->SetSize({0.2f, 0.05f});
+		hscoreTxt->SetText("High Score: 0");
+		hscoreTxt->SetAlignment(TextAlign::Right);
+		hscoreTxt->SetColor({255.0f, 255.0f, 255.0f});
+		hscoreTxt->SetOffsetFromAnchor({0.0f, 0.075f});
+		hscoreTxt->SetFont(font);
+		hscoreTxt->SetDepth(0);
+		hscoreTxt->SetActive(true);
+		gameUI->AddElement(hscoreTxt);
 		levelTxt = std::make_shared<Text>();
 		levelTxt->SetAnchor(AnchorPoint::TopRight);
 		levelTxt->SetSize({0.2f, 0.05f});
 		levelTxt->SetText("Level 1");
 		levelTxt->SetAlignment(TextAlign::Right);
 		levelTxt->SetColor({255.0f, 255.0f, 255.0f});
-		levelTxt->SetOffsetFromAnchor({0.0f, 0.075f});
+		levelTxt->SetOffsetFromAnchor({0.0f, 0.14f});
 		levelTxt->SetFont(font);
 		levelTxt->SetDepth(0);
 		levelTxt->SetActive(true);
@@ -102,6 +114,12 @@ void Thretris::IncrementScore() {
 	std::stringstream textStr;
 	textStr << "Score: " << score;
 	scoreTxt->SetText(textStr.str());
+	if(score > hiScore) {
+		hiScore = score;
+		textStr.str("");
+		textStr << "High Score: " << hiScore;
+		hscoreTxt->SetText(textStr.str());
+	}
 }
 
 void Thretris::ResetScore() {
@@ -243,9 +261,27 @@ void Thretris::OnStartup() {
 
 	world.cam->SetPosition({-15, 0, 0});
 
+	std::ifstream hsf("./thretris.dat");
+	if(!hsf.is_open()) {
+		hiScore = 0;
+	} else {
+		std::stringstream hsc;
+		hsc << hsf.rdbuf();
+		try {
+			hiScore = std::stoi(hsc.str());
+		} catch(std::out_of_range) {
+			hiScore = 0;
+		}
+	}
+
 	Logging::ClientLog("Thretris is started.");
 }
 
 void Thretris::OnShutdown() {
+	Logging::ClientLog("Saving high-score...");
+	std::ofstream hsf("./thretris.dat");
+	hsf << hiScore;
+	hsf.close();
+
 	Logging::ClientLog("Thretris is stopped.");
 }

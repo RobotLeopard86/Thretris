@@ -72,7 +72,9 @@ class Thretris {
 	std::shared_ptr<Text> camInf;
 
 	std::shared_ptr<Text> scoreTxt;
+	std::shared_ptr<Text> hscoreTxt;
 	int score;
+	int hiScore;
 	std::shared_ptr<Text> levelTxt;
 	int level;
 
