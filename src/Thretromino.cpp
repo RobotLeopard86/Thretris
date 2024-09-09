@@ -63,6 +63,27 @@ void Thretromino::UpdateInWorld() {
 		b.first->GetLocalTransform().SetPosition(blockPositions[count]);
 		count++;
 	}
+
+	for(uint8_t x = 0; x < 10; x++) {
+		for(uint8_t z = 0; z < 10; z++) {
+			bool next = false;
+			for(uint8_t y = 19; y >= 0 && y < 20; y--) {
+				if(!Thretris::GetInstance()->blks[x][z][y]) continue;
+				std::shared_ptr<MeshComponent> mc = std::dynamic_pointer_cast<MeshComponent>(Thretris::GetInstance()->blks[x][z][y]->GetAllComponents().begin()->second);
+				if(y < 19 && !Thretris::GetInstance()->blks[x][z][y + 1]) {
+					for(glm::vec3 bp : blockPositions) {
+						if(x == bp.x - 5 && z == 9 - (bp.z + 5)) {
+							mc->mat = Thretris::GetInstance()->GetShadowVariant(mc->mat);
+							next = true;
+							break;
+						}
+					}
+				}
+				if(next) break;
+				mc->mat = Thretris::GetInstance()->GetNormalVariant(mc->mat);
+			}
+		}
+	}
 }
 
 std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {

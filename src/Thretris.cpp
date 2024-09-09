@@ -218,15 +218,25 @@ void Thretris::OnStartup() {
 	pink = texLoadOp[8].get();
 	platTex = texLoadOp[9].get();
 
-	pub.redM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(red)}}});
-	pub.orangeM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(orange)}}});
-	pub.goldM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(gold)}}});
-	pub.greenM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(green)}}});
-	pub.cyanM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(cyan)}}});
-	pub.lblueM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(lblue)}}});
-	pub.dblueM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(dblue)}}});
-	pub.purpleM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(purple)}}});
-	pub.pinkM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(pink)}}});
+	pub.redM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(red)}, {.target = "InShadow", .data = std::any(0)}}});
+	pub.orangeM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(orange)}, {.target = "InShadow", .data = std::any(0)}}});
+	pub.goldM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(gold)}, {.target = "InShadow", .data = std::any(0)}}});
+	pub.greenM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(green)}, {.target = "InShadow", .data = std::any(0)}}});
+	pub.cyanM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(cyan)}, {.target = "InShadow", .data = std::any(0)}}});
+	pub.lblueM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(lblue)}, {.target = "InShadow", .data = std::any(0)}}});
+	pub.dblueM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(dblue)}, {.target = "InShadow", .data = std::any(0)}}});
+	pub.purpleM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(purple)}, {.target = "InShadow", .data = std::any(0)}}});
+	pub.pinkM = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(pink)}, {.target = "InShadow", .data = std::any(0)}}});
+
+	pub.redM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(red)}, {.target = "InShadow", .data = std::any(1)}}});
+	pub.orangeM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(orange)}, {.target = "InShadow", .data = std::any(1)}}});
+	pub.goldM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(gold)}, {.target = "InShadow", .data = std::any(1)}}});
+	pub.greenM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(green)}, {.target = "InShadow", .data = std::any(1)}}});
+	pub.cyanM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(cyan)}, {.target = "InShadow", .data = std::any(1)}}});
+	pub.lblueM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(lblue)}, {.target = "InShadow", .data = std::any(1)}}});
+	pub.dblueM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(dblue)}, {.target = "InShadow", .data = std::any(1)}}});
+	pub.purpleM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(purple)}, {.target = "InShadow", .data = std::any(1)}}});
+	pub.pinkM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(pink)}, {.target = "InShadow", .data = std::any(1)}}});
 
 	spaghetti = AssetManager::GetInstance()->LoadSkybox("assets/game.cubedef.yml").get();
 
@@ -252,7 +262,7 @@ void Thretris::OnStartup() {
 	platformEnt = std::make_shared<Entity>("Floor Platform");
 	platformEnt->SetActive(true);
 	platformEnt->GetLocalTransform().SetPosition({9.5625f, -11, -0.5f});
-	platformEnt->GetLocalTransform().SetScale({0.5f, 1, 0.5f});
+	platformEnt->GetLocalTransform().SetScale({0.5f, 1.0f, 0.5f});
 	std::shared_ptr<MeshComponent> pmc = platformEnt->GetComponent<MeshComponent>(platformEnt->MountComponent<MeshComponent>());
 	pmc->mat = platMat;
 	pmc->mesh = platMsh;
@@ -284,4 +294,30 @@ void Thretris::OnShutdown() {
 	hsf.close();
 
 	Logging::ClientLog("Thretris is stopped.");
+}
+
+std::shared_ptr<Material> Thretris::GetShadowVariant(std::shared_ptr<Material> m) {
+	if(m == pub.redM) return pub.redM_D;
+	if(m == pub.orangeM) return pub.orangeM_D;
+	if(m == pub.goldM) return pub.goldM_D;
+	if(m == pub.greenM) return pub.greenM_D;
+	if(m == pub.cyanM) return pub.cyanM_D;
+	if(m == pub.lblueM) return pub.lblueM_D;
+	if(m == pub.dblueM) return pub.dblueM_D;
+	if(m == pub.purpleM) return pub.purpleM_D;
+	if(m == pub.pinkM) return pub.pinkM_D;
+	return m;
+}
+
+std::shared_ptr<Material> Thretris::GetNormalVariant(std::shared_ptr<Material> m) {
+	if(m == pub.redM_D) return pub.redM;
+	if(m == pub.orangeM_D) return pub.orangeM;
+	if(m == pub.goldM_D) return pub.goldM;
+	if(m == pub.greenM_D) return pub.greenM;
+	if(m == pub.cyanM_D) return pub.cyanM;
+	if(m == pub.lblueM_D) return pub.lblueM;
+	if(m == pub.dblueM_D) return pub.dblueM;
+	if(m == pub.purpleM_D) return pub.purpleM;
+	if(m == pub.pinkM_D) return pub.pinkM;
+	return m;
 }

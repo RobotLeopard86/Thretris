@@ -16,6 +16,15 @@ struct PublicAssets {
 	std::shared_ptr<Material> dblueM;
 	std::shared_ptr<Material> purpleM;
 	std::shared_ptr<Material> pinkM;
+	std::shared_ptr<Material> redM_D;
+	std::shared_ptr<Material> orangeM_D;
+	std::shared_ptr<Material> goldM_D;
+	std::shared_ptr<Material> greenM_D;
+	std::shared_ptr<Material> cyanM_D;
+	std::shared_ptr<Material> lblueM_D;
+	std::shared_ptr<Material> dblueM_D;
+	std::shared_ptr<Material> purpleM_D;
+	std::shared_ptr<Material> pinkM_D;
 	AssetHandle<Mesh> block;
 };
 
@@ -42,6 +51,9 @@ class Thretris {
 	void ShowGameUI() {
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 	}
+
+	std::shared_ptr<Material> GetNormalVariant(std::shared_ptr<Material> m);
+	std::shared_ptr<Material> GetShadowVariant(std::shared_ptr<Material> m);
 
 	PublicAssets pub;
 	std::array<std::array<std::array<std::shared_ptr<Entity>, 20>, 10>, 10> blks;

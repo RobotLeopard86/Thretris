@@ -5,3 +5,7 @@ spec:
     sizex: 1
     sizey: 1
     type: texture
+  - name: InShadow
+    sizex: 1
+    sizey: 1
+    type: int
