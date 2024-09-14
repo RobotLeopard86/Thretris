@@ -5,6 +5,12 @@
 #define QUICKDROP_MULTIPLIER 12
 #define BASE_LEVELADVANCE 10
 
+bool GameMgr::gameOverSig = false;
+
+void GameMgr::SignalGameOver() {
+	gameOverSig = true;
+}
+
 bool IsMoveValid(std::shared_ptr<Thretromino> thr, glm::vec3 tgt, decltype(Thretris::GetInstance()->blks)& blks) {
 	for(glm::i8vec3 member : thr->shapes[thr->idx]) {
 		glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + tgt;
@@ -19,6 +25,14 @@ bool IsMoveValid(std::shared_ptr<Thretromino> thr, glm::vec3 tgt, decltype(Thret
 
 void GameMgr::OnTick(double timestep) {
 	decltype(Thretris::GetInstance()->blks) blks = Thretris::GetInstance()->blks;
+	if(gameOverSig) {
+		state = State::GameOver;
+		for(auto blk : activeThretro->blocks) {
+			blk.first->SetParent(blk.first);
+		}
+		Thretris::GetInstance()->GameOver();
+		return;
+	}
 	switch(state) {
 		case State::Spawn: {
 			if(steady_clock::now() - dropFinished < prespawnTime) break;
@@ -276,6 +290,8 @@ void GameMgr::OnTick(double timestep) {
 				state = State::Spawn;
 				numSpawns = 0;
 				Thretris::GetInstance()->ShowGameUI();
+				gameOverSig = false;
+				Thretris::GetInstance()->musicMaker->Play();
 				break;
 			}
 		}

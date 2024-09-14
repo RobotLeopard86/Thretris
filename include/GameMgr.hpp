@@ -32,10 +32,14 @@ class GameMgr final : public Script {
 	}
 	void OnTick(double) override;
 
+	static void SignalGameOver();
+
   private:
 	std::shared_ptr<Thretromino> activeThretro;
 	steady_clock::time_point dropFinished;
 	int numSpawns;
 	State state;
 	MoveStateArgs msa;
+
+	static bool gameOverSig;
 };

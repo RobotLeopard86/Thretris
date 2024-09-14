@@ -47,6 +47,7 @@ class Thretris {
 
 	void GameOver() {
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameOver);
+		musicMaker->Stop();
 	}
 	void ShowGameUI() {
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
@@ -57,6 +58,7 @@ class Thretris {
 
 	PublicAssets pub;
 	std::array<std::array<std::array<std::shared_ptr<Entity>, 20>, 10>, 10> blks;
+	std::shared_ptr<AudioPlayer> musicMaker;
 
   private:
 	static Thretris* instance;
@@ -80,6 +82,7 @@ class Thretris {
 	std::shared_ptr<Image> gameOverBG;
 	std::shared_ptr<Text> gameOverText;
 	std::shared_ptr<Text> resetText;
+	std::shared_ptr<Text> fscoreText;
 
 	std::shared_ptr<Text> camInf;
 
@@ -100,6 +103,9 @@ class Thretris {
 	AssetHandle<Texture2D> purple;
 	AssetHandle<Texture2D> pink;
 	AssetHandle<Shader> blockShd;
+
+	AssetHandle<Sound> music;
+	std::shared_ptr<Entity> musicMan;
 
 	AssetHandle<Skybox> spaghetti;
 

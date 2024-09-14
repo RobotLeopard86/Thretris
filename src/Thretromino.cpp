@@ -1,5 +1,6 @@
 #include "Thretromino.hpp"
 #include "Thretris.hpp"
+#include "GameMgr.hpp"
 
 void Thretromino::UpdateInWorld() {
 	if(frozen) {
@@ -88,6 +89,8 @@ void Thretromino::UpdateInWorld() {
 
 std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 	std::shared_ptr<Thretromino> ret = std::make_shared<Thretromino>();
+
+	bool canSpawn19 = false;
 
 	switch(tp) {
 		case ThretrominoType::Bar: {
@@ -235,6 +238,7 @@ std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 			ret->color = BlkMatOpt::Red;
 			ret->shapes.resize(1);
 			ret->shapes[0].emplace_back(0, 0, 0);
+			canSpawn19 = true;
 			break;
 		}
 		case ThretrominoType::Ring: {
@@ -264,6 +268,7 @@ std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 			ret->shapes[2].emplace_back(0, 1, 0);
 			ret->shapes[2].emplace_back(-1, 1, 0);
 			ret->shapes[2].emplace_back(-1, 0, 0);
+			canSpawn19 = true;
 			break;
 		}
 		case ThretrominoType::Star: {
@@ -467,7 +472,8 @@ std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 		}
 		default: break;
 	}
-	ret->center = {0, 20.0f, 0};
+	ret->center = {0, 18, 0};
+	if(canSpawn19) ret->center.y = 19;
 	ret->idx = 0;
 	for(int i = 0; i < ret->shapes[0].size(); i++) {
 		std::shared_ptr<Entity> ent = std::make_shared<Entity>(std::string("Platypus-") + std::to_string(i));
@@ -491,7 +497,7 @@ void Thretromino::Freeze() {
 		return;
 	}
 
-	glm::i8vec3 centerPos = {round(center.x + 5), round(center.y - 10), round(center.z - 5)};
+	glm::i8vec3 centerPos = {round(center.x + 5), ceil(center.y - 10), round(center.z - 5)};
 	std::vector<glm::i8vec3> blockPositions;
 	for(glm::i8vec3 member : shapes[idx]) {
 		glm::i8vec3 pos = centerPos + member;

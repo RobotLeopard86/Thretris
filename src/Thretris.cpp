@@ -53,7 +53,7 @@ void Thretris::DoStart() {
 		hscoreTxt = std::make_shared<Text>();
 		hscoreTxt->SetAnchor(AnchorPoint::TopRight);
 		hscoreTxt->SetSize({0.2f, 0.05f});
-		hscoreTxt->SetText("High Score: 0");
+		hscoreTxt->SetText(std::string("High Score: ") + std::to_string(hiScore));
 		hscoreTxt->SetAlignment(TextAlign::Right);
 		hscoreTxt->SetColor({255.0f, 255.0f, 255.0f});
 		hscoreTxt->SetOffsetFromAnchor({0.0f, 0.075f});
@@ -103,9 +103,21 @@ void Thretris::DoStart() {
 		gameOverText->SetFont(font);
 		gameOverText->SetDepth(0);
 		gameOver->AddElement(gameOverText);
+		fscoreText = std::make_shared<Text>();
+		fscoreText->SetAnchor(AnchorPoint::Center);
+		fscoreText->SetSize({0.1f, 0.1f});
+		fscoreText->SetText("Press Start To\nPlay Again");
+		fscoreText->SetAlignment(TextAlign::Center);
+		fscoreText->SetColor({255.0f, 255.0f, 255.0f});
+		fscoreText->SetOffsetFromAnchor({-0.05f, -0.1f});
+		fscoreText->SetFont(font);
+		fscoreText->SetDepth(0);
+		fscoreText->SetActive(true);
+		gameOver->AddElement(fscoreText);
 
 		WorldManager::GetInstance()->SetActiveWorld("Game");
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
+		Thretris::GetInstance()->musicMaker->Play();
 	});
 }
 
@@ -145,6 +157,7 @@ void Thretris::OnStartup() {
 	std::future<AssetHandle<Texture2D>> overBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/gameoverbg.png");
 	std::future<AssetHandle<Texture2D>> lgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/logo.png");
 	std::future<AssetHandle<Font>> fontFut = AssetManager::GetInstance()->LoadFont("assets/PixelifySans.ttf");
+	std::future<AssetHandle<Sound>> musFut = AssetManager::GetInstance()->LoadSound("assets/gametheme.ogg");
 
 	WorldManager::GetInstance()->CreateWorld<PerspectiveCamera>("MainMenu");
 	WorldManager::GetInstance()->CreateWorld<PerspectiveCamera>("Game");
@@ -249,6 +262,17 @@ void Thretris::OnStartup() {
 	World& world = WorldManager::GetInstance()->GetWorld("Game");
 	world.skybox = spaghetti;
 
+	music = musFut.get();
+	musicMan = std::make_shared<Entity>("MUUUUUSIC MAN");
+	musicMan->SetParent(world.rootEntity);
+	musicMan->SetActive(true);
+	musicMaker = musicMan->GetComponent<AudioPlayer>(musicMan->MountComponent<AudioPlayer>());
+	musicMaker->sound = music;
+	musicMaker->SetActive(true);
+	musicMaker->SetLooping(true);
+	musicMaker->SetGain(1.0f);
+	musicMaker->SetPitchMultiplier(1.0f);
+
 	score = 0;
 	level = 1;
 
@@ -277,11 +301,15 @@ void Thretris::OnStartup() {
 	} else {
 		std::stringstream hsc;
 		hsc << hsf.rdbuf();
+		std::string val = hsc.str();
+		Logging::ClientLog(val, LogLevel::Warn);
 		try {
-			hiScore = std::stoi(hsc.str());
-		} catch(std::out_of_range) {
+			hiScore = std::stoi(val);
+		} catch(std::exception) {
 			hiScore = 0;
 		}
+		Logging::ClientLog(std::to_string(hiScore));
+		hsf.close();
 	}
 
 	Logging::ClientLog("Thretris is started.");
