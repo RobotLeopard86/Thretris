@@ -37,7 +37,7 @@ class Thretris {
 
 	void DoStart();
 
-	void UpdateInfoText(glm::vec3 p, glm::vec3 r);
+	void UpdateInfoText(glm::vec3 p, glm::vec3 r, glm::vec3 o);
 	void IncrementScore();
 	void ResetScore();
 	void SetLvl(int lvl);
@@ -47,7 +47,7 @@ class Thretris {
 
 	void GameOver() {
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameOver);
-		musicMaker->Stop();
+		if(musicMaker->IsPlaying()) musicMaker->Stop();
 	}
 	void ShowGameUI() {
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
@@ -84,7 +84,9 @@ class Thretris {
 	std::shared_ptr<Text> resetText;
 	std::shared_ptr<Text> fscoreText;
 
-	std::shared_ptr<Text> camInf;
+	std::shared_ptr<Text> camInfP;
+	std::shared_ptr<Text> camInfR;
+	std::shared_ptr<Text> camInfO;
 
 	std::shared_ptr<Text> scoreTxt;
 	std::shared_ptr<Text> hscoreTxt;

@@ -31,10 +31,3 @@ class GameStarter final : public Script {
   private:
 	bool haveStarted;
 };
-
-class Dirtifier final : public Script {
-  public:
-	void OnTick(double) override {
-		Engine::GetInstance()->GetGlobalUIView()->GetScreen()->ForceDirty();
-	}
-};

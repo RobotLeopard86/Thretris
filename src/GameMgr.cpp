@@ -48,6 +48,11 @@ void GameMgr::OnTick(double timestep) {
 			break;
 		}
 		case State::UsrIn: {
+			if(Input::GetInstance()->IsMouseButtonPressed(CACAO_MOUSE_BUTTON_MIDDLE)) {
+				SignalGameOver();
+				return;
+			}
+
 			for(int x = 0; x < 10; x++) {
 				for(int z = 0; z < 10; z++) {
 					if(blks[x][z][19]) {
@@ -272,7 +277,6 @@ void GameMgr::OnTick(double timestep) {
 			break;
 		}
 		case State::GameOver: {
-			Engine::GetInstance()->GetGlobalUIView()->GetScreen()->ForceDirty();
 			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_ENTER)) {
 				for(int x = 0; x < 10; x++) {
 					for(int z = 0; z < 10; z++) {

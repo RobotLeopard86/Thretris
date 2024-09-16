@@ -28,17 +28,39 @@ void Thretris::DoStart() {
 		Logging::ClientLog("Let's go!");
 
 		gameUI = std::make_shared<Screen>();
-		camInf = std::make_shared<Text>();
-		camInf->SetAnchor(AnchorPoint::TopLeft);
-		camInf->SetSize({0.4f, 0.05f});
-		camInf->SetText("P X/Y/Z R X/Y/Z");
-		camInf->SetAlignment(TextAlign::Left);
-		camInf->SetColor({255.0f, 255.0f, 255.0f});
-		camInf->SetOffsetFromAnchor({0.0f, 0.01f});
-		camInf->SetFont(font);
-		camInf->SetDepth(0);
-		camInf->SetActive(true);
-		gameUI->AddElement(camInf);
+		camInfP = std::make_shared<Text>();
+		camInfP->SetAnchor(AnchorPoint::TopLeft);
+		camInfP->SetSize({0.4f, 0.05f});
+		camInfP->SetText("P X/Y/Z");
+		camInfP->SetAlignment(TextAlign::Left);
+		camInfP->SetColor({255.0f, 255.0f, 255.0f});
+		camInfP->SetOffsetFromAnchor({0.0f, 0.01f});
+		camInfP->SetFont(font);
+		camInfP->SetDepth(0);
+		camInfP->SetActive(true);
+		gameUI->AddElement(camInfP);
+		camInfR = std::make_shared<Text>();
+		camInfR->SetAnchor(AnchorPoint::TopLeft);
+		camInfR->SetSize({0.4f, 0.05f});
+		camInfR->SetText("R X/Y/Z");
+		camInfR->SetAlignment(TextAlign::Left);
+		camInfR->SetColor({255.0f, 255.0f, 255.0f});
+		camInfR->SetOffsetFromAnchor({0.0f, 0.075f});
+		camInfR->SetFont(font);
+		camInfR->SetDepth(0);
+		camInfR->SetActive(true);
+		gameUI->AddElement(camInfR);
+		camInfO = std::make_shared<Text>();
+		camInfO->SetAnchor(AnchorPoint::TopLeft);
+		camInfO->SetSize({0.3f, 0.05f});
+		camInfO->SetText("O X/Y");
+		camInfO->SetAlignment(TextAlign::Left);
+		camInfO->SetColor({255.0f, 255.0f, 255.0f});
+		camInfO->SetOffsetFromAnchor({0.0f, 0.14f});
+		camInfO->SetFont(font);
+		camInfO->SetDepth(0);
+		camInfO->SetActive(true);
+		gameUI->AddElement(camInfO);
 		scoreTxt = std::make_shared<Text>();
 		scoreTxt->SetAnchor(AnchorPoint::TopRight);
 		scoreTxt->SetSize({0.2f, 0.05f});
@@ -105,8 +127,12 @@ void Thretris::DoStart() {
 		gameOver->AddElement(gameOverText);
 		fscoreText = std::make_shared<Text>();
 		fscoreText->SetAnchor(AnchorPoint::Center);
-		fscoreText->SetSize({0.1f, 0.1f});
-		fscoreText->SetText("Press Start To\nPlay Again");
+		fscoreText->SetSize({0.125f, 0.175f});
+		std::stringstream fst;
+		fst << "FINAL SCORE\n"
+			<< score << "\n\nHIGH SCORE\n"
+			<< hiScore;
+		fscoreText->SetText(fst.str());
 		fscoreText->SetAlignment(TextAlign::Center);
 		fscoreText->SetColor({255.0f, 255.0f, 255.0f});
 		fscoreText->SetOffsetFromAnchor({-0.05f, -0.1f});
@@ -146,10 +172,16 @@ void Thretris::SetLvl(int lvl) {
 	level = lvl;
 }
 
-void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r) {
+void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r, glm::vec3 o) {
 	std::stringstream txt;
-	txt << "P " << p.x << "/" << p.y << "/" << p.z << " R " << r.x << "/" << r.y << "/" << r.z;
-	camInf->SetText(txt.str());
+	txt << "P " << p.x << "/" << p.y << "/" << p.z;
+	camInfP->SetText(txt.str());
+	txt.str("");
+	txt << "R " << r.x << "/" << r.y << "/" << r.z;
+	camInfR->SetText(txt.str());
+	txt.str("");
+	txt << "O " << o.x << "/" << o.y;
+	camInfO->SetText(txt.str());
 }
 
 void Thretris::OnStartup() {
@@ -157,7 +189,7 @@ void Thretris::OnStartup() {
 	std::future<AssetHandle<Texture2D>> overBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/gameoverbg.png");
 	std::future<AssetHandle<Texture2D>> lgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/logo.png");
 	std::future<AssetHandle<Font>> fontFut = AssetManager::GetInstance()->LoadFont("assets/PixelifySans.ttf");
-	std::future<AssetHandle<Sound>> musFut = AssetManager::GetInstance()->LoadSound("assets/gametheme.ogg");
+	std::future<AssetHandle<Sound>> musFut = AssetManager::GetInstance()->LoadSound("assets/gametheme.wav");
 
 	WorldManager::GetInstance()->CreateWorld<PerspectiveCamera>("MainMenu");
 	WorldManager::GetInstance()->CreateWorld<PerspectiveCamera>("Game");
@@ -200,8 +232,6 @@ void Thretris::OnStartup() {
 	menuMgr->SetActive(true);
 	menuMgr->GetComponent<GameStarter>(menuMgr->MountComponent<GameStarter>())->SetActive(true);
 	menuMgr->GetComponent<ExitHandler>(menuMgr->MountComponent<ExitHandler>())->SetActive(true);
-	std::shared_ptr<Dirtifier> dirtifier = menuMgr->GetComponent<Dirtifier>(menuMgr->MountComponent<Dirtifier>());
-	dirtifier->SetActive(true);
 
 	MultiFuture<AssetHandle<Texture2D>> texLoadOp;
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/blocks/red.png"));
@@ -261,6 +291,8 @@ void Thretris::OnStartup() {
 
 	World& world = WorldManager::GetInstance()->GetWorld("Game");
 	world.skybox = spaghetti;
+	world.cam->SetPosition({0, 0, 0});
+	world.cam->SetRotation({0, 0, 0});
 
 	music = musFut.get();
 	musicMan = std::make_shared<Entity>("MUUUUUSIC MAN");
@@ -293,8 +325,6 @@ void Thretris::OnStartup() {
 	pmc->SetActive(true);
 	platformEnt->SetParent(world.rootEntity);
 
-	world.cam->SetPosition({-15, 0, 0});
-
 	std::ifstream hsf("./thretris.dat");
 	if(!hsf.is_open()) {
 		hiScore = 0;
@@ -302,13 +332,11 @@ void Thretris::OnStartup() {
 		std::stringstream hsc;
 		hsc << hsf.rdbuf();
 		std::string val = hsc.str();
-		Logging::ClientLog(val, LogLevel::Warn);
 		try {
 			hiScore = std::stoi(val);
 		} catch(std::exception) {
 			hiScore = 0;
 		}
-		Logging::ClientLog(std::to_string(hiScore));
 		hsf.close();
 	}
 

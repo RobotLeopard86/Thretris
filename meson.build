@@ -21,6 +21,7 @@ launch = shared_module('launch', name_prefix: '', dependencies: cacao_dep, inclu
 	'src/Thretris.cpp',
 	'src/Thretromino.cpp',
 	'src/GameMgr.cpp',
+	'src/CamMgr.cpp',
 	vshaders,
 	pshaders
 ], build_by_default: true)
