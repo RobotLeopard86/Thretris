@@ -128,11 +128,6 @@ void Thretris::DoStart() {
 		fscoreText = std::make_shared<Text>();
 		fscoreText->SetAnchor(AnchorPoint::Center);
 		fscoreText->SetSize({0.125f, 0.175f});
-		std::stringstream fst;
-		fst << "FINAL SCORE\n"
-			<< score << "\n\nHIGH SCORE\n"
-			<< hiScore;
-		fscoreText->SetText(fst.str());
 		fscoreText->SetAlignment(TextAlign::Center);
 		fscoreText->SetColor({255.0f, 255.0f, 255.0f});
 		fscoreText->SetOffsetFromAnchor({-0.05f, -0.1f});
@@ -376,4 +371,14 @@ std::shared_ptr<Material> Thretris::GetNormalVariant(std::shared_ptr<Material> m
 	if(m == pub.purpleM_D) return pub.purpleM;
 	if(m == pub.pinkM_D) return pub.pinkM;
 	return m;
+}
+
+void Thretris::GameOver() {
+	std::stringstream fst;
+	fst << "FINAL SCORE\n"
+		<< score << "\n\nHIGH SCORE\n"
+		<< hiScore;
+	fscoreText->SetText(fst.str());
+	Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameOver);
+	if(musicMaker->IsPlaying()) musicMaker->Stop();
 }

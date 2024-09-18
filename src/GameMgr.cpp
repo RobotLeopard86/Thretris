@@ -31,6 +31,7 @@ void GameMgr::OnTick(double timestep) {
 			blk.first->SetParent(blk.first);
 		}
 		Thretris::GetInstance()->GameOver();
+		gameOverSig = false;
 		return;
 	}
 	switch(state) {

@@ -45,10 +45,7 @@ class Thretris {
 		return level;
 	}
 
-	void GameOver() {
-		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameOver);
-		if(musicMaker->IsPlaying()) musicMaker->Stop();
-	}
+	void GameOver();
 	void ShowGameUI() {
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 	}
