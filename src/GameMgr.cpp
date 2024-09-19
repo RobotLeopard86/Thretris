@@ -54,6 +54,14 @@ void GameMgr::OnTick(double timestep) {
 				return;
 			}
 
+			if(steady_clock::now() >= (lastUnpause + pauseCooldown) && Input::GetInstance()->IsKeyPressed(CACAO_KEY_ENTER)) {
+				Thretris::GetInstance()->ShowPauseUI();
+				Thretris::GetInstance()->musicMaker->TogglePause();
+				lastPause = steady_clock::now();
+				state = State::Pause;
+				break;
+			}
+
 			for(int x = 0; x < 10; x++) {
 				for(int z = 0; z < 10; z++) {
 					if(blks[x][z][19]) {
@@ -279,6 +287,7 @@ void GameMgr::OnTick(double timestep) {
 		}
 		case State::GameOver: {
 			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_ENTER)) {
+			restart_game:
 				for(int x = 0; x < 10; x++) {
 					for(int z = 0; z < 10; z++) {
 						for(int y = 0; y < 20; y++) {
@@ -297,8 +306,25 @@ void GameMgr::OnTick(double timestep) {
 				Thretris::GetInstance()->ShowGameUI();
 				gameOverSig = false;
 				Thretris::GetInstance()->musicMaker->Play();
+				lastUnpause = steady_clock::now();
 				break;
 			}
+		}
+		case State::Pause: {
+			if(steady_clock::now() >= (lastPause + unpauseCooldown) && Input::GetInstance()->IsKeyPressed(CACAO_KEY_ENTER)) {
+				Thretris::GetInstance()->ShowGameUI();
+				Thretris::GetInstance()->musicMaker->TogglePause();
+				lastUnpause = steady_clock::now();
+				state = State::UsrIn;
+				break;
+			}
+			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_Y)) {
+				for(auto blk : activeThretro->blocks) {
+					blk.first->SetParent(blk.first);
+				}
+				Thretris::GetInstance()->musicMaker->Stop();
+				goto restart_game;
+			};
 		}
 	}
 	return;

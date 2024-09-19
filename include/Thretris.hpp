@@ -49,6 +49,9 @@ class Thretris {
 	void ShowGameUI() {
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 	}
+	void ShowPauseUI() {
+		Engine::GetInstance()->GetGlobalUIView()->SetScreen(pause);
+	}
 
 	std::shared_ptr<Material> GetNormalVariant(std::shared_ptr<Material> m);
 	std::shared_ptr<Material> GetShadowVariant(std::shared_ptr<Material> m);
@@ -68,6 +71,7 @@ class Thretris {
 	std::shared_ptr<Screen> mainMenu;
 	std::shared_ptr<Screen> gameUI;
 	std::shared_ptr<Screen> gameOver;
+	std::shared_ptr<Screen> pause;
 
 	AssetHandle<Texture2D> mainMenuBG_Tex;
 	std::shared_ptr<Image> mainMenuBG;
@@ -91,6 +95,10 @@ class Thretris {
 	int hiScore;
 	std::shared_ptr<Text> levelTxt;
 	int level;
+
+	std::shared_ptr<Text> pauseInstructions;
+	AssetHandle<Texture2D> pauseBG_Tex;
+	std::shared_ptr<Image> pauseBG;
 
 	AssetHandle<Texture2D> red;
 	AssetHandle<Texture2D> orange;

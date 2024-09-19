@@ -136,6 +136,27 @@ void Thretris::DoStart() {
 		fscoreText->SetActive(true);
 		gameOver->AddElement(fscoreText);
 
+		pause = std::make_shared<Screen>();
+		pauseBG = std::make_shared<Image>();
+		pauseBG->SetAnchor(AnchorPoint::Center);
+		pauseBG->SetSize({1.0f, 1.0f});
+		pauseBG->SetImage(pauseBG_Tex);
+		pauseBG->SetActive(true);
+		pauseBG->SetDepth(1);
+		pause->AddElement(pauseBG);
+		pause->AddElement(logo);
+		pauseInstructions = std::make_shared<Text>();
+		pauseInstructions->SetAnchor(AnchorPoint::BottomCenter);
+		pauseInstructions->SetSize({0.1f, 0.1f});
+		pauseInstructions->SetText("Press Start to Resume\nor\nPress Y to Restart");
+		pauseInstructions->SetAlignment(TextAlign::Center);
+		pauseInstructions->SetColor({255.0f, 255.0f, 255.0f});
+		pauseInstructions->SetOffsetFromAnchor({-0.05f, -0.2f});
+		pauseInstructions->SetFont(font);
+		pauseInstructions->SetDepth(0);
+		pauseInstructions->SetActive(true);
+		pause->AddElement(pauseInstructions);
+
 		WorldManager::GetInstance()->SetActiveWorld("Game");
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 		Thretris::GetInstance()->musicMaker->Play();
@@ -182,6 +203,7 @@ void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r, glm::vec3 o) {
 void Thretris::OnStartup() {
 	std::future<AssetHandle<Texture2D>> menuBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/menubg.png");
 	std::future<AssetHandle<Texture2D>> overBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/gameoverbg.png");
+	std::future<AssetHandle<Texture2D>> pauseBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/pausebg.png");
 	std::future<AssetHandle<Texture2D>> lgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/logo.png");
 	std::future<AssetHandle<Font>> fontFut = AssetManager::GetInstance()->LoadFont("assets/PixelifySans.ttf");
 	std::future<AssetHandle<Sound>> musFut = AssetManager::GetInstance()->LoadSound("assets/gametheme.wav");
@@ -241,6 +263,7 @@ void Thretris::OnStartup() {
 	texLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/plat.png"));
 
 	gameOverBG_Tex = overBgFut.get();
+	pauseBG_Tex = pauseBgFut.get();
 
 	pub.block = AssetManager::GetInstance()->LoadMesh("assets/blocks/block.obj:Block").get();
 	blockShd = AssetManager::GetInstance()->LoadShader("assets/shaders/block.shaderdef.yml").get();
