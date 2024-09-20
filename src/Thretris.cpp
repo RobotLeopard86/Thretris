@@ -148,7 +148,7 @@ void Thretris::DoStart() {
 		pauseInstructions = std::make_shared<Text>();
 		pauseInstructions->SetAnchor(AnchorPoint::BottomCenter);
 		pauseInstructions->SetSize({0.1f, 0.1f});
-		pauseInstructions->SetText("Press Start to Resume\nor\nPress Y to Restart");
+		pauseInstructions->SetText("Press Start to Resume\nPress Y to Restart\nPress A for How to Play");
 		pauseInstructions->SetAlignment(TextAlign::Center);
 		pauseInstructions->SetColor({255.0f, 255.0f, 255.0f});
 		pauseInstructions->SetOffsetFromAnchor({-0.05f, -0.2f});
@@ -156,11 +156,49 @@ void Thretris::DoStart() {
 		pauseInstructions->SetDepth(0);
 		pauseInstructions->SetActive(true);
 		pause->AddElement(pauseInstructions);
+		how2Play = std::make_shared<Text>();
+		how2Play->SetAnchor(AnchorPoint::Center);
+		how2Play->SetSize({0.8f, 0.6f});
+		how2Play->SetText(R"(
+			Move the Left Joystick to move the current piece.
+			Move the Right Joystick to move the camera.
+			Press Select to Quick-Drop the current piece (once done, piece cannot be moved).
+			Press A and B to cycle through rotations (A forward, B backward).
+
+			To score, you must create a contiguous line of blocks all at the same height.
+			When done, that line will be cleared and everything above it will move down.
+			You will also receive a point.
+
+			If the stack of Thretrominos reaches 20 blocks in height, you will lose.
+			The longer you survive, the higher the level you will reach.
+			As you get to higher levels, Thretrominos fall faster.
+
+			Press A to return to the pause menu.
+		)");
+		how2Play->SetAlignment(TextAlign::Center);
+		how2Play->SetColor({255.0f, 255.0f, 255.0f});
+		how2Play->SetOffsetFromAnchor({-0.45f, -0.25f});
+		how2Play->SetFont(font);
+		how2Play->SetDepth(0);
+		how2Play->SetActive(false);
+		pause->AddElement(how2Play);
 
 		WorldManager::GetInstance()->SetActiveWorld("Game");
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameUI);
 		Thretris::GetInstance()->musicMaker->Play();
 	});
+}
+
+void Thretris::ToggleHowToPlay() {
+	if(how2Play->IsActive()) {
+		how2Play->SetActive(false);
+		logo->SetActive(true);
+		pauseInstructions->SetActive(true);
+	} else {
+		how2Play->SetActive(true);
+		logo->SetActive(false);
+		pauseInstructions->SetActive(false);
+	}
 }
 
 void Thretris::IncrementScore() {

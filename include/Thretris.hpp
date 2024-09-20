@@ -52,6 +52,11 @@ class Thretris {
 	void ShowPauseUI() {
 		Engine::GetInstance()->GetGlobalUIView()->SetScreen(pause);
 	}
+	void ToggleHowToPlay();
+
+	bool IsPaused() {
+		return Engine::GetInstance()->GetGlobalUIView()->GetScreen() == pause;
+	}
 
 	std::shared_ptr<Material> GetNormalVariant(std::shared_ptr<Material> m);
 	std::shared_ptr<Material> GetShadowVariant(std::shared_ptr<Material> m);
@@ -97,6 +102,7 @@ class Thretris {
 	int level;
 
 	std::shared_ptr<Text> pauseInstructions;
+	std::shared_ptr<Text> how2Play;
 	AssetHandle<Texture2D> pauseBG_Tex;
 	std::shared_ptr<Image> pauseBG;
 

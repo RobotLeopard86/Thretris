@@ -8,6 +8,8 @@ constexpr glm::vec3 stackCenter = {10, -2, 0};
 #define RADIUS 24.0f
 
 void CamMgr::OnTick(double timestep) {
+	if(Thretris::GetInstance()->IsPaused()) return;
+
 	if(Cacao::Input::GetInstance()->IsKeyPressed(CACAO_KEY_W)) {
 		orbit.x += SPEED * timestep;
 	}

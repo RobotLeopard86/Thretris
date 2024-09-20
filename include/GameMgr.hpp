@@ -9,8 +9,9 @@ using namespace Cacao;
 using std::chrono::steady_clock;
 
 constexpr std::chrono::milliseconds prespawnTime = std::chrono::milliseconds(1000);
-constexpr std::chrono::milliseconds pauseCooldown = std::chrono::milliseconds(2000);
-constexpr std::chrono::milliseconds unpauseCooldown = std::chrono::milliseconds(1000);
+constexpr std::chrono::milliseconds pauseCooldown = std::chrono::milliseconds(1250);
+constexpr std::chrono::milliseconds pauseToggleCooldown = std::chrono::milliseconds(1000);
+constexpr std::chrono::milliseconds unpauseCooldown = std::chrono::milliseconds(800);
 
 enum class State {
 	Move,
@@ -34,6 +35,7 @@ class GameMgr final : public Script {
 		numSpawns = 0;
 		lastUnpause = steady_clock::now();
 		lastPause = steady_clock::now();
+		lastPauseToggle = steady_clock::now();
 	}
 	void OnTick(double) override;
 
@@ -48,6 +50,7 @@ class GameMgr final : public Script {
 
 	steady_clock::time_point lastUnpause;
 	steady_clock::time_point lastPause;
+	steady_clock::time_point lastPauseToggle;
 
 	static bool gameOverSig;
 };

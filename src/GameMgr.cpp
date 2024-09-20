@@ -145,7 +145,7 @@ void GameMgr::OnTick(double timestep) {
 
 			msa.tgt += mvBuf;
 
-			uint8_t iShift = 0;
+			int8_t iShift = 0;
 			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_X)) iShift--;
 			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_C)) iShift++;
 			int newIdx = activeThretro->idx + iShift;
@@ -324,7 +324,11 @@ void GameMgr::OnTick(double timestep) {
 				}
 				Thretris::GetInstance()->musicMaker->Stop();
 				goto restart_game;
-			};
+			}
+			if(steady_clock::now() >= (lastPauseToggle + unpauseCooldown) && Input::GetInstance()->IsKeyPressed(CACAO_KEY_A)) {
+				Thretris::GetInstance()->ToggleHowToPlay();
+				lastPauseToggle = steady_clock::now();
+			}
 		}
 	}
 	return;
