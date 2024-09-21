@@ -1,6 +1,6 @@
-x+: assets/images/spaghetti.jpeg
-x-: assets/images/spaghetti.jpeg
-y+: assets/images/spaghetti.jpeg
-y-: assets/images/spaghetti.jpeg
-z+: assets/images/spaghetti.jpeg
-z-: assets/images/spaghetti.jpeg
+x+: assets/skybox/right.png
+x-: assets/skybox/left.png
+y+: assets/skybox/top.png
+y-: assets/skybox/bottom.png
+z+: assets/skybox/front.png
+z-: assets/skybox/back.png
