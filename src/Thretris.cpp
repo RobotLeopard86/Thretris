@@ -333,7 +333,7 @@ void Thretris::OnStartup() {
 
 	next = std::make_shared<Image>();
 	next->SetAnchor(AnchorPoint::BottomLeft);
-	next->SetSize({0.225f, 0.28f});
+	next->SetSize({0.1775f, 0.28f});
 	next->SetImage(none);
 	next->SetDepth(0);
 	next->SetOffsetFromAnchor({0, 0});
