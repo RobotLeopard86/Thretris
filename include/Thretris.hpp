@@ -37,7 +37,6 @@ class Thretris {
 
 	void DoStart();
 
-	void UpdateInfoText(glm::vec3 p, glm::vec3 r, glm::vec3 o);
 	void IncrementScore();
 	void ResetScore();
 	void SetLvl(int lvl);
@@ -57,6 +56,8 @@ class Thretris {
 	bool IsPaused() {
 		return Engine::GetInstance()->GetGlobalUIView()->GetScreen() == pause;
 	}
+
+	void SetNextThretromino(ThretrominoType type);
 
 	std::shared_ptr<Material> GetNormalVariant(std::shared_ptr<Material> m);
 	std::shared_ptr<Material> GetShadowVariant(std::shared_ptr<Material> m);
@@ -90,16 +91,14 @@ class Thretris {
 	std::shared_ptr<Text> resetText;
 	std::shared_ptr<Text> fscoreText;
 
-	std::shared_ptr<Text> camInfP;
-	std::shared_ptr<Text> camInfR;
-	std::shared_ptr<Text> camInfO;
-
 	std::shared_ptr<Text> scoreTxt;
 	std::shared_ptr<Text> hscoreTxt;
 	int score;
 	int hiScore;
 	std::shared_ptr<Text> levelTxt;
 	int level;
+	std::shared_ptr<Text> nextLabel;
+	std::shared_ptr<Image> next;
 
 	std::shared_ptr<Text> pauseInstructions;
 	std::shared_ptr<Text> how2Play;
@@ -120,7 +119,7 @@ class Thretris {
 	AssetHandle<Sound> music;
 	std::shared_ptr<Entity> musicMan;
 
-	AssetHandle<Skybox> spaghetti;
+	AssetHandle<Skybox> sky;
 
 	std::shared_ptr<Entity> camMgrEnt;
 
@@ -129,4 +128,15 @@ class Thretris {
 	AssetHandle<Texture2D> platTex;
 	AssetHandle<Mesh> platMsh;
 	std::shared_ptr<Material> platMat;
+
+	AssetHandle<Texture2D> bit;
+	AssetHandle<Texture2D> box;
+	AssetHandle<Texture2D> star;
+	AssetHandle<Texture2D> c;
+	AssetHandle<Texture2D> ring;
+	AssetHandle<Texture2D> bar;
+	AssetHandle<Texture2D> table;
+	AssetHandle<Texture2D> t;
+	AssetHandle<Texture2D> h;
+	AssetHandle<Texture2D> none;
 };

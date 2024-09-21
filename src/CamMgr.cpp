@@ -44,6 +44,4 @@ void CamMgr::OnTick(double timestep) {
 	Cacao::PerspectiveCamera* cam = static_cast<Cacao::PerspectiveCamera*>(Cacao::WorldManager::GetInstance()->GetActiveWorld().cam);
 	cam->SetRotation(currentRot);
 	cam->SetPosition(currentPos);
-
-	Thretris::GetInstance()->UpdateInfoText(currentPos, currentRot, orbit);
 }

@@ -28,39 +28,6 @@ void Thretris::DoStart() {
 		Logging::ClientLog("Let's go!");
 
 		gameUI = std::make_shared<Screen>();
-		camInfP = std::make_shared<Text>();
-		camInfP->SetAnchor(AnchorPoint::TopLeft);
-		camInfP->SetSize({0.4f, 0.05f});
-		camInfP->SetText("P X/Y/Z");
-		camInfP->SetAlignment(TextAlign::Left);
-		camInfP->SetColor({255.0f, 255.0f, 255.0f});
-		camInfP->SetOffsetFromAnchor({0.0f, 0.01f});
-		camInfP->SetFont(font);
-		camInfP->SetDepth(0);
-		camInfP->SetActive(true);
-		gameUI->AddElement(camInfP);
-		camInfR = std::make_shared<Text>();
-		camInfR->SetAnchor(AnchorPoint::TopLeft);
-		camInfR->SetSize({0.4f, 0.05f});
-		camInfR->SetText("R X/Y/Z");
-		camInfR->SetAlignment(TextAlign::Left);
-		camInfR->SetColor({255.0f, 255.0f, 255.0f});
-		camInfR->SetOffsetFromAnchor({0.0f, 0.075f});
-		camInfR->SetFont(font);
-		camInfR->SetDepth(0);
-		camInfR->SetActive(true);
-		gameUI->AddElement(camInfR);
-		camInfO = std::make_shared<Text>();
-		camInfO->SetAnchor(AnchorPoint::TopLeft);
-		camInfO->SetSize({0.3f, 0.05f});
-		camInfO->SetText("O X/Y");
-		camInfO->SetAlignment(TextAlign::Left);
-		camInfO->SetColor({255.0f, 255.0f, 255.0f});
-		camInfO->SetOffsetFromAnchor({0.0f, 0.14f});
-		camInfO->SetFont(font);
-		camInfO->SetDepth(0);
-		camInfO->SetActive(true);
-		gameUI->AddElement(camInfO);
 		scoreTxt = std::make_shared<Text>();
 		scoreTxt->SetAnchor(AnchorPoint::TopRight);
 		scoreTxt->SetSize({0.2f, 0.05f});
@@ -94,6 +61,18 @@ void Thretris::DoStart() {
 		levelTxt->SetDepth(0);
 		levelTxt->SetActive(true);
 		gameUI->AddElement(levelTxt);
+		nextLabel = std::make_shared<Text>();
+		nextLabel->SetAnchor(AnchorPoint::LeftCenter);
+		nextLabel->SetSize({0.1f, 0.03f});
+		nextLabel->SetText("Next Thretromino");
+		nextLabel->SetAlignment(TextAlign::Left);
+		nextLabel->SetColor({255.0f, 255.0f, 255.0f});
+		nextLabel->SetOffsetFromAnchor({0.0f, 0.2f});
+		nextLabel->SetFont(font);
+		nextLabel->SetDepth(0);
+		nextLabel->SetActive(true);
+		gameUI->AddElement(nextLabel);
+		gameUI->AddElement(next);
 
 		gameOver = std::make_shared<Screen>();
 		gameOverBG = std::make_shared<Image>();
@@ -226,18 +205,6 @@ void Thretris::SetLvl(int lvl) {
 	level = lvl;
 }
 
-void Thretris::UpdateInfoText(glm::vec3 p, glm::vec3 r, glm::vec3 o) {
-	std::stringstream txt;
-	txt << "P " << p.x << "/" << p.y << "/" << p.z;
-	camInfP->SetText(txt.str());
-	txt.str("");
-	txt << "R " << r.x << "/" << r.y << "/" << r.z;
-	camInfR->SetText(txt.str());
-	txt.str("");
-	txt << "O " << o.x << "/" << o.y;
-	camInfO->SetText(txt.str());
-}
-
 void Thretris::OnStartup() {
 	std::future<AssetHandle<Texture2D>> menuBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/menubg.png");
 	std::future<AssetHandle<Texture2D>> overBgFut = AssetManager::GetInstance()->LoadTexture2D("assets/images/gameoverbg.png");
@@ -337,7 +304,7 @@ void Thretris::OnStartup() {
 	pub.purpleM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(purple)}, {.target = "InShadow", .data = std::any(1)}}});
 	pub.pinkM_D = std::make_shared<Material>(Material {.shader = blockShd, .data = ShaderUploadData {{.target = "tex", .data = std::any(pink)}, {.target = "InShadow", .data = std::any(1)}}});
 
-	spaghetti = AssetManager::GetInstance()->LoadSkybox("assets/game.cubedef.yml").get();
+	sky = AssetManager::GetInstance()->LoadSkybox("assets/game.cubedef.yml").get();
 
 	platMsh = AssetManager::GetInstance()->LoadMesh("assets/platform.obj:Platform").get();
 	platShd = AssetManager::GetInstance()->LoadShader("assets/shaders/plat.shaderdef.yml").get();
@@ -346,7 +313,7 @@ void Thretris::OnStartup() {
 	Logging::ClientLog("Generating world...");
 
 	World& world = WorldManager::GetInstance()->GetWorld("Game");
-	world.skybox = spaghetti;
+	world.skybox = sky;
 	world.cam->SetPosition({0, 0, 0});
 	world.cam->SetRotation({0, 0, 0});
 
@@ -363,6 +330,14 @@ void Thretris::OnStartup() {
 
 	score = 0;
 	level = 1;
+
+	next = std::make_shared<Image>();
+	next->SetAnchor(AnchorPoint::BottomLeft);
+	next->SetSize({0.225f, 0.28f});
+	next->SetImage(none);
+	next->SetDepth(0);
+	next->SetOffsetFromAnchor({0, 0});
+	next->SetActive(true);
 
 	camMgrEnt = std::make_shared<Entity>("Thetris Manager");
 	camMgrEnt->SetParent(world.rootEntity);
@@ -395,6 +370,30 @@ void Thretris::OnStartup() {
 		}
 		hsf.close();
 	}
+
+	MultiFuture<AssetHandle<Texture2D>> imgLoadOp;
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/bit.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/box.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/star.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/c.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/ring.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/bar.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/table.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/t.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/h.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/none.png"));
+	imgLoadOp.WaitAll();
+
+	bit = imgLoadOp[0].get();
+	box = imgLoadOp[1].get();
+	star = imgLoadOp[2].get();
+	c = imgLoadOp[3].get();
+	ring = imgLoadOp[4].get();
+	bar = imgLoadOp[5].get();
+	table = imgLoadOp[6].get();
+	t = imgLoadOp[7].get();
+	h = imgLoadOp[8].get();
+	none = imgLoadOp[9].get();
 
 	Logging::ClientLog("Thretris is started.");
 }
@@ -442,4 +441,36 @@ void Thretris::GameOver() {
 	fscoreText->SetText(fst.str());
 	Engine::GetInstance()->GetGlobalUIView()->SetScreen(gameOver);
 	if(musicMaker->IsPlaying()) musicMaker->Stop();
+}
+
+void Thretris::SetNextThretromino(ThretrominoType type) {
+	switch(type) {
+		case ThretrominoType::Bar:
+			next->SetImage(bar);
+			break;
+		case ThretrominoType::Bit:
+			next->SetImage(bit);
+			break;
+		case ThretrominoType::Box:
+			next->SetImage(box);
+			break;
+		case ThretrominoType::C:
+			next->SetImage(c);
+			break;
+		case ThretrominoType::H:
+			next->SetImage(h);
+			break;
+		case ThretrominoType::T:
+			next->SetImage(t);
+			break;
+		case ThretrominoType::Ring:
+			next->SetImage(ring);
+			break;
+		case ThretrominoType::Star:
+			next->SetImage(star);
+			break;
+		case ThretrominoType::Table:
+			next->SetImage(table);
+			break;
+	}
 }

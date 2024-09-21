@@ -37,8 +37,8 @@ void GameMgr::OnTick(double timestep) {
 	switch(state) {
 		case State::Spawn: {
 			if(steady_clock::now() - dropFinished < prespawnTime) break;
-			auto rng = std::mt19937(std::random_device()());
-			activeThretro = SpawnThretromino((ThretrominoType)std::uniform_int_distribution<int>(0, 8)(rng));
+			activeThretro = SpawnThretromino(next);
+			Regen();
 			activeThretro->center = {4, 19, 5};
 			activeThretro->UpdateInWorld();
 			state = State::UsrIn;
@@ -338,4 +338,10 @@ freeze:
 	dropFinished = steady_clock::now();
 	state = State::Spawn;
 	return;
+}
+
+void GameMgr::Regen() {
+	auto rng = std::mt19937(std::random_device()());
+	next = (ThretrominoType)std::uniform_int_distribution<int>(0, 8)(rng);
+	Thretris::GetInstance()->SetNextThretromino(next);
 }

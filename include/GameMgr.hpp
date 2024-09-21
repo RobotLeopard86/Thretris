@@ -36,10 +36,13 @@ class GameMgr final : public Script {
 		lastUnpause = steady_clock::now();
 		lastPause = steady_clock::now();
 		lastPauseToggle = steady_clock::now();
+		Regen();
 	}
 	void OnTick(double) override;
 
 	static void SignalGameOver();
+
+	void Regen();
 
   private:
 	std::shared_ptr<Thretromino> activeThretro;
@@ -51,6 +54,8 @@ class GameMgr final : public Script {
 	steady_clock::time_point lastUnpause;
 	steady_clock::time_point lastPause;
 	steady_clock::time_point lastPauseToggle;
+
+	ThretrominoType next;
 
 	static bool gameOverSig;
 };
