@@ -90,8 +90,6 @@ void Thretromino::UpdateInWorld() {
 std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 	std::shared_ptr<Thretromino> ret = std::make_shared<Thretromino>();
 
-	bool canSpawn19 = false;
-
 	switch(tp) {
 		case ThretrominoType::Bar: {
 			ret->color = BlkMatOpt::Lbl;
@@ -252,7 +250,6 @@ std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 			ret->color = BlkMatOpt::Red;
 			ret->shapes.resize(1);
 			ret->shapes[0].emplace_back(0, 0, 0);
-			canSpawn19 = true;
 			break;
 		}
 		case ThretrominoType::Ring: {
@@ -282,7 +279,6 @@ std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 			ret->shapes[2].emplace_back(0, 1, 0);
 			ret->shapes[2].emplace_back(-1, 1, 0);
 			ret->shapes[2].emplace_back(-1, 0, 0);
-			canSpawn19 = true;
 			break;
 		}
 		case ThretrominoType::Star: {
@@ -487,7 +483,6 @@ std::shared_ptr<Thretromino> SpawnThretromino(ThretrominoType tp) {
 		default: break;
 	}
 	ret->center = {0, 18, 0};
-	if(canSpawn19) ret->center.y = 19;
 	ret->idx = 0;
 	for(int i = 0; i < ret->shapes[0].size(); i++) {
 		std::shared_ptr<Entity> ent = std::make_shared<Entity>(std::string("Platypus-") + std::to_string(i));

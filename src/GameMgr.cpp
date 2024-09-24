@@ -84,7 +84,15 @@ void GameMgr::OnTick(double timestep) {
 			msa.tgt.y = ceil(msa.tgt.y) - 1;
 			if(msa.tgt.y < 0) goto freeze;
 
-			if(Input::GetInstance()->IsKeyPressed(CACAO_KEY_H)) {
+			for(glm::i8vec3 member : activeThretro->shapes[activeThretro->idx]) {
+				glm::vec3 p = glm::vec3 {round(member.x), ceil(member.y), round(member.z)} + msa.tgt;
+				if(p.y >= 19 && !IsMoveValid(activeThretro, msa.tgt, blks)) {
+					SignalGameOver();
+					return;
+				}
+			}
+
+			if(activeThretro->center.y <= 18 && Input::GetInstance()->IsKeyPressed(CACAO_KEY_H)) {
 				activeThretro->quickDropped = true;
 				glm::vec3 lowestTarget = activeThretro->center;
 				while(lowestTarget.y > 0 && IsMoveValid(activeThretro, lowestTarget, blks)) {
@@ -101,6 +109,8 @@ void GameMgr::OnTick(double timestep) {
 
 				if(msa.tgt.y > activeThretro->center.y) {
 					Logging::ClientLog("what", LogLevel::Warn);
+					Logging::ClientLog(std::to_string(activeThretro->center.y), LogLevel::Warn);
+					Logging::ClientLog(std::to_string(msa.tgt.y), LogLevel::Warn);
 				}
 
 				msa.dir = msa.tgt - msa.original;
@@ -303,6 +313,9 @@ void GameMgr::OnTick(double timestep) {
 				dropFinished = steady_clock::now();
 				state = State::Spawn;
 				numSpawns = 0;
+				World& world = WorldManager::GetInstance()->GetWorld("Game");
+				world.cam->SetPosition({0, 0, 0});
+				world.cam->SetRotation({0, 0, 0});
 				Thretris::GetInstance()->ShowGameUI();
 				gameOverSig = false;
 				Thretris::GetInstance()->musicMaker->Play();
