@@ -1,5 +1,6 @@
-[[vk::combinedImageSampler]] Texture2D tex : register(t0);
-[[vk::combinedImageSampler]] SamplerState texSampler : register(s0);
+#include "texmacro.hlsl"
+
+CacaoTexture(tex, 0);
 
 struct PSInput {
   float4 Pos : SV_POSITION;

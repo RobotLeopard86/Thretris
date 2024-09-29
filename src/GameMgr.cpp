@@ -5,6 +5,20 @@
 #define QUICKDROP_MULTIPLIER 12
 #define BASE_LEVELADVANCE 10
 
+#define FALL_MIN 1.5
+#define FALL_MAX 6
+#define FALL_MAX_AT 25
+
+float CalcSpeed(int x) {
+	if(FALL_MAX_AT <= 0) return (x >= FALL_MAX_AT) ? FALL_MIN : FALL_MAX;
+	float scaledX = std::clamp(static_cast<float>(x) / FALL_MAX_AT, 0.0f, 1.0f);
+
+	//SIGMOID TIME YAYYYYYY
+	float sigmoidValue = 1.0f / (1.0f + std::exp(-12.0f * (scaledX - 0.5f)));
+
+	return FALL_MIN + (FALL_MAX - FALL_MIN) * sigmoidValue;
+}
+
 bool GameMgr::gameOverSig = false;
 
 void GameMgr::SignalGameOver() {
@@ -215,7 +229,7 @@ void GameMgr::OnTick(double timestep) {
 		}
 		case State::Move: {
 		mv:
-			msa.curDist += (float(timestep)) * (activeThretro->quickDropped ? QUICKDROP_MULTIPLIER : std::min(log(1 + Thretris::GetInstance()->GetLvl()) / log(1.75), 6.0));
+			msa.curDist += (float(timestep)) * (activeThretro->quickDropped ? QUICKDROP_MULTIPLIER : CalcSpeed(Thretris::GetInstance()->GetLvl()));
 			activeThretro->center = (msa.curDist >= msa.totDist ? msa.tgt : msa.original + (msa.dir * (msa.curDist / msa.totDist)));
 			activeThretro->UpdateInWorld();
 			if(activeThretro->center == msa.tgt) {
