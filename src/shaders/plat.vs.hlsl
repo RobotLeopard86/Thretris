@@ -1,11 +1,11 @@
 #pragma pack_matrix(row_major)
 
-cbuffer cacao_globals : register(b0) {
+struct CacaoGlobals {
   float4x4 projection;
   float4x4 view;
 };
 
-cbuffer cacao_locals : register(b1) { float4x4 transform; };
+ConstantBuffer<CacaoGlobals> globals : register(b0);
 
 struct VSInput {
   [[vk::location(0)]] float3 Position : POSITION0;
@@ -17,10 +17,16 @@ struct VSOutput {
   [[vk::location(0)]] float2 TexCoords : TEXCOORD0;
 };
 
+struct ObjectData {
+  float4x4 transform;
+};
+
+[[vk::push_constant]] ObjectData object;
+
 VSOutput main(VSInput input) {
   VSOutput output;
   float4 pos = float4(input.Position, 1.0);
-  output.Pos = mul(pos, mul(transform, mul(view, projection)));
+  output.Pos = mul(pos, mul(object.transform, mul(globals.view, globals.projection)));
   output.TexCoords = input.TexCoords;
   return output;
 }
