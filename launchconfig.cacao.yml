@@ -2,7 +2,7 @@
 launch: .
 
 # Target number of dynamic ticks per second (not a hard constraint)
-dynamicTPS: 30
+dynamicTPS: 60
 
 # Window title
 title: Thretris
