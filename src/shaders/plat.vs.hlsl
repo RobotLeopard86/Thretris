@@ -14,7 +14,7 @@ struct VSInput {
 
 struct VSOutput {
   float4 Pos : SV_POSITION;
-  [[vk::location(0)]] float2 TexCoords : TEXCOORD0;
+  [[vk::location(0)]] float2 TexCoords : TEXCOORD;
 };
 
 struct ObjectData {
@@ -26,7 +26,8 @@ struct ObjectData {
 VSOutput main(VSInput input) {
   VSOutput output;
   float4 pos = float4(input.Position, 1.0);
-  output.Pos = mul(pos, mul(object.transform, mul(globals.view, globals.projection)));
+  output.Pos =
+      mul(pos, mul(object.transform, mul(globals.view, globals.projection)));
   output.TexCoords = input.TexCoords;
   return output;
 }

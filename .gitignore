@@ -11,3 +11,8 @@ subprojects/*
 
 # Don't send Python crap from utility scripts
 scripts/__pycache__
+
+# Don't send any Visual Studio things
+.vs
+*.sln
+*.vcxproj*

@@ -28,7 +28,8 @@ struct ObjectData {
 VSOutput main(VSInput input) {
   VSOutput output;
   float4 pos = float4(input.Position, 1.0);
-  output.Pos = mul(pos, mul(object.transform, mul(globals.view, globals.projection)));
+  output.Pos =
+      mul(pos, mul(object.transform, mul(globals.view, globals.projection)));
   output.TexCoords = input.TexCoords;
   output.Shadowed = object.InShadow > 0 ? true : false;
   return output;

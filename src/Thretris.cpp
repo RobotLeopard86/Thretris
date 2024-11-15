@@ -328,8 +328,29 @@ void Thretris::OnStartup() {
 	musicMaker->SetGain(1.0f);
 	musicMaker->SetPitchMultiplier(1.0f);
 
-	score = 0;
-	level = 1;
+	MultiFuture<AssetHandle<Texture2D>> imgLoadOp;
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/bit.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/box.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/star.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/c.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/ring.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/bar.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/table.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/t.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/h.png"));
+	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/none.png"));
+	imgLoadOp.WaitAll();
+
+	bit = imgLoadOp[0].get();
+	box = imgLoadOp[1].get();
+	star = imgLoadOp[2].get();
+	c = imgLoadOp[3].get();
+	ring = imgLoadOp[4].get();
+	bar = imgLoadOp[5].get();
+	table = imgLoadOp[6].get();
+	t = imgLoadOp[7].get();
+	h = imgLoadOp[8].get();
+	none = imgLoadOp[9].get();
 
 	next = std::make_shared<Image>();
 	next->SetAnchor(AnchorPoint::BottomLeft);
@@ -338,6 +359,9 @@ void Thretris::OnStartup() {
 	next->SetDepth(0);
 	next->SetOffsetFromAnchor({0, 0});
 	next->SetActive(true);
+
+	score = 0;
+	level = 1;
 
 	camMgrEnt = std::make_shared<Entity>("Thetris Manager");
 	camMgrEnt->SetParent(world.rootEntity);
@@ -370,30 +394,6 @@ void Thretris::OnStartup() {
 		}
 		hsf.close();
 	}
-
-	MultiFuture<AssetHandle<Texture2D>> imgLoadOp;
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/bit.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/box.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/star.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/c.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/ring.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/bar.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/table.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/t.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/h.png"));
-	imgLoadOp.push_back(AssetManager::GetInstance()->LoadTexture2D("assets/images/thretrominos/none.png"));
-	imgLoadOp.WaitAll();
-
-	bit = imgLoadOp[0].get();
-	box = imgLoadOp[1].get();
-	star = imgLoadOp[2].get();
-	c = imgLoadOp[3].get();
-	ring = imgLoadOp[4].get();
-	bar = imgLoadOp[5].get();
-	table = imgLoadOp[6].get();
-	t = imgLoadOp[7].get();
-	h = imgLoadOp[8].get();
-	none = imgLoadOp[9].get();
 
 	Logging::ClientLog("Thretris is started.");
 }
