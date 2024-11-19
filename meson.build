@@ -4,7 +4,7 @@ cacao = subproject('cacaoengine', required: true, default_options: ['use_backend
 cacao_dep = cacao.get_variable('cacao_dep')
 
 dxc = find_program('dxc', required: true)
-spv_gen = generator(dxc, output: '@BASENAME@.spv', arguments: ['-spirv', '-fvk-use-gl-layout', '-fspv-reflect', '@EXTRA_ARGS@', '-Fo', '@OUTPUT@', '@INPUT@'])
+spv_gen = generator(dxc, output: '@BASENAME@.spv', arguments: ['-spirv', '-fvk-use-gl-layout', '@EXTRA_ARGS@', '-Fo', '@OUTPUT@', '@INPUT@'])
 
 vshaders = spv_gen.process([
 	'src/shaders/block.vs.hlsl',
