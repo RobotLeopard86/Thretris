@@ -13,6 +13,5 @@ EXPORT void _CacaoLaunch() {
 
 EXPORT void _CacaoExiting() {
 	Thretris::GetInstance()->OnShutdown();
-	delete Thretris::GetInstance();
 }
 }

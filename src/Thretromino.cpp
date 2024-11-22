@@ -536,5 +536,6 @@ Thretromino::~Thretromino() {
 		for(auto ent : blocks) {
 			ent.first->SetParent(ent.first);
 		}
+		blocks.clear();
 	}
 }

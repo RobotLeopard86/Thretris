@@ -367,7 +367,8 @@ void Thretris::OnStartup() {
 	camMgrEnt->SetParent(world.rootEntity);
 	camMgrEnt->SetActive(true);
 	camMgrEnt->GetComponent<CamMgr>(camMgrEnt->MountComponent<CamMgr>())->SetActive(true);
-	camMgrEnt->GetComponent<GameMgr>(camMgrEnt->MountComponent<GameMgr>())->SetActive(true);
+	gameMgrGUID = camMgrEnt->MountComponent<GameMgr>();
+	camMgrEnt->GetComponent<GameMgr>(gameMgrGUID)->SetActive(true);
 	camMgrEnt->GetComponent<ExitHandler>(camMgrEnt->MountComponent<ExitHandler>())->SetActive(true);
 
 	platformEnt = std::make_shared<Entity>("Floor Platform");
@@ -399,16 +400,26 @@ void Thretris::OnStartup() {
 }
 
 void Thretris::OnShutdown() {
+	camMgrEnt->DeleteComponent(gameMgrGUID);
+
 	Logging::ClientLog("Saving high-score...");
 	std::ofstream hsf("./thretris.dat");
 	hsf << hiScore;
 	hsf.close();
+
+	Logging::ClientLog("Clearing screens...");
+	if(mainMenu) mainMenu->PurgeElements();
+	if(gameUI) gameUI->PurgeElements();
+	if(gameOver) gameOver->PurgeElements();
+	if(pause) pause->PurgeElements();
 
 	Logging::ClientLog("Ending the world...");
 	WorldManager::GetInstance()->RemoveWorld("Game");
 	WorldManager::GetInstance()->RemoveWorld("MainMenu");
 
 	Logging::ClientLog("Thretris is stopped.");
+
+	delete this;
 }
 
 std::shared_ptr<Material> Thretris::GetShadowVariant(std::shared_ptr<Material> m) {

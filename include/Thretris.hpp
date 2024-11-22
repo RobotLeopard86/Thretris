@@ -139,4 +139,6 @@ class Thretris {
 	AssetHandle<Texture2D> t;
 	AssetHandle<Texture2D> h;
 	AssetHandle<Texture2D> none;
+
+	xg::Guid gameMgrGUID;
 };
