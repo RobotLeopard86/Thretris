@@ -1,6 +1,6 @@
 project('thretris', 'cpp', default_options: ['cpp_std=c++20'])
 
-cacao = subproject('cacaoengine', required: true, default_options: ['use_backend=gl-sdl', 'build_playground=false'])
+cacao = subproject('cacaoengine', required: true, default_options: ['use_backend=gl-sdl', 'build_playground=false', 'exe_name=Thretris'])
 cacao_dep = cacao.get_variable('cacao_dep')
 
 dxc = find_program('dxc', required: true)

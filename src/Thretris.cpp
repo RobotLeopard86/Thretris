@@ -404,6 +404,10 @@ void Thretris::OnShutdown() {
 	hsf << hiScore;
 	hsf.close();
 
+	Logging::ClientLog("Ending the world...");
+	WorldManager::GetInstance()->RemoveWorld("Game");
+	WorldManager::GetInstance()->RemoveWorld("MainMenu");
+
 	Logging::ClientLog("Thretris is stopped.");
 }
 
